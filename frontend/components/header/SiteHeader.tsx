@@ -76,7 +76,7 @@ export function SiteHeader() {
           </Link>
           <Link
             href="/login"
-            className="btn-primary hidden !py-2 !text-xs sm:inline-flex"
+            className="btn-primary !hidden !py-2 !text-xs lg:!inline-flex"
           >
             {t("login")}
           </Link>
@@ -110,7 +110,7 @@ export function SiteHeader() {
           ))}
           <Link
             href="/login"
-            className="btn-primary mt-2 justify-center sm:hidden"
+            className="btn-primary mt-2 justify-center"
             onClick={() => setOpen(false)}
           >
             {t("login")}
