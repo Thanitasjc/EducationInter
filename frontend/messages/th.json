@@ -13,7 +13,12 @@
     "events": "กิจกรรม",
     "contact": "ติดต่อ",
     "apply": "สมัครเรียน",
-    "login": "เข้าสู่ระบบ"
+    "login": "เข้าสู่ระบบ",
+    "openMenu": "เปิดเมนู",
+    "closeMenu": "ปิดเมนู"
+  },
+  "common": {
+    "goToTop": "กลับขึ้นด้านบน"
   },
   "hero": {
     "headline": "เรียนต่อต่างประเทศกับ Education Interntions",

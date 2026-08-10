@@ -13,7 +13,12 @@
     "events": "Events",
     "contact": "Contact",
     "apply": "Apply",
-    "login": "Login"
+    "login": "Login",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
+  },
+  "common": {
+    "goToTop": "Back to top"
   },
   "hero": {
     "headline": "Study Abroad with Education Interntions",

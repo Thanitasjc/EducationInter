@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { SiteFooter } from "@/components/footer/SiteFooter";
 import { SiteHeader } from "@/components/header/SiteHeader";
+import { GoToTop } from "@/components/ui/GoToTop";
 
 export function WebsiteShell({ children }: { children: ReactNode }) {
   return (
@@ -8,6 +9,7 @@ export function WebsiteShell({ children }: { children: ReactNode }) {
       <SiteHeader />
       <main className="flex-1">{children}</main>
       <SiteFooter />
+      <GoToTop />
     </div>
   );
 }
