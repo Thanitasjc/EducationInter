@@ -3,23 +3,16 @@
 # Dashboard: connect this repo, then set env vars (especially DATABASE_URL from Supabase).
 
 services:
+  # Render dashboard no longer lists native PHP — use Docker (backend/Dockerfile).
   - type: web
     name: education-inter-api
-    runtime: php
+    runtime: docker
     rootDir: backend
+    dockerfilePath: ./Dockerfile
     plan: free
     region: singapore
-    buildCommand: |
-      composer install --no-dev --optimize-autoloader
-      php artisan package:discover --ansi
-      php artisan storage:link || true
-      php artisan config:cache
-      php artisan route:cache
-      php artisan view:cache
-    startCommand: |
-      php artisan migrate --force
-      php artisan serve --host=0.0.0.0 --port=$PORT
     healthCheckPath: /api/home
+    dockerCommand: php artisan migrate --force && php artisan config:cache && php artisan route:cache && php artisan view:cache && php artisan serve --host=0.0.0.0 --port=$PORT
     envVars:
       - key: APP_NAME
         value: Education Interntions
