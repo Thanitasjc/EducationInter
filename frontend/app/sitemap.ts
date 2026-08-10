@@ -15,7 +15,11 @@ type SitemapPayload = {
 
 async function fetchSitemap(): Promise<SitemapPayload | null> {
   try {
-    const res = await fetch(`${API_URL}/sitemap`, { next: { revalidate: 3600 } });
+    // Don't hang Vercel builds when Render is cold / down.
+    const res = await fetch(`${API_URL}/sitemap`, {
+      next: { revalidate: 3600 },
+      signal: AbortSignal.timeout(8_000),
+    });
     if (!res.ok) return null;
     return (await res.json()) as SitemapPayload;
   } catch {
