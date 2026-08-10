@@ -43,10 +43,13 @@ async function apiFetch<T>(path: string, options: FetchOptions = {}): Promise<T>
     headers["Content-Type"] = "application/json";
   }
 
+  const timeoutMs = Number(process.env.API_FETCH_TIMEOUT_MS ?? 12_000);
   const res = await fetch(url.toString(), {
     ...options,
     headers,
     next: options.next ?? { revalidate: 60 },
+    // Cold Render free-tier wakeups can exceed Vercel's static generation budget.
+    signal: options.signal ?? AbortSignal.timeout(timeoutMs),
   });
 
   if (!res.ok) {

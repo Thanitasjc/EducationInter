@@ -34,6 +34,8 @@ DB_PASSWORD=********
 DB_SSLMODE=require
 
 # or single URI (Render often uses this)
+# Laravel 12 reads DB_URL (Render/Heroku often expose DATABASE_URL — map it)
+DB_URL=postgresql://postgres:PASSWORD@db.xxxxx.supabase.co:5432/postgres?sslmode=require
 DATABASE_URL=postgresql://postgres:PASSWORD@db.xxxxx.supabase.co:5432/postgres?sslmode=require
 ```
 

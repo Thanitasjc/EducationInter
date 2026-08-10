@@ -30,6 +30,9 @@ services:
         sync: false
       - key: DB_CONNECTION
         value: pgsql
+      # Laravel 12 reads DB_URL (not DATABASE_URL)
+      - key: DB_URL
+        sync: false
       - key: DATABASE_URL
         sync: false
       - key: DB_SSLMODE
