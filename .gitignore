@@ -1,0 +1,15 @@
+node_modules/
+.next/
+out/
+vendor/
+.env
+.env.local
+backend/.env
+frontend/.env.local
+backend/database/database.sqlite
+backend/storage/*.key
+backend/public/storage
+.DS_Store
+*.log
+.idea/
+.vscode/

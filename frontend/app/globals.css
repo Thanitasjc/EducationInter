@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+:root {
+  --win-purple: #4b2e83;
+  --win-purple-deep: #2f1b55;
+  --win-blue: #1e3a8a;
+  --win-sky: #e8eefc;
+  --win-ink: #121826;
+  --win-muted: #5b6475;
+  --background: #f7f8fc;
+  --foreground: #121826;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-win-purple: var(--win-purple);
+  --color-win-purple-deep: var(--win-purple-deep);
+  --color-win-blue: var(--win-blue);
+  --color-win-sky: var(--win-sky);
+  --color-win-ink: var(--win-ink);
+  --color-win-muted: var(--win-muted);
+  --font-sans: var(--font-prompt), "Noto Sans Thai", ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+.section {
+  @apply px-4 py-14 md:px-8 lg:px-12;
+}
+
+.section-title {
+  @apply text-2xl font-bold tracking-tight text-win-ink md:text-3xl;
+}
+
+.section-subtitle {
+  @apply mt-2 max-w-2xl text-win-muted;
+}
+
+.btn-primary {
+  @apply inline-flex items-center justify-center rounded-xl bg-win-purple px-5 py-3 text-sm font-semibold text-white transition hover:bg-win-purple-deep;
+}
+
+.btn-secondary {
+  @apply inline-flex items-center justify-center rounded-xl border border-white/80 bg-white/10 px-5 py-3 text-sm font-semibold text-white backdrop-blur transition hover:bg-white hover:text-win-purple;
+}
+
+.card-soft {
+  @apply rounded-2xl border border-black/5 bg-white p-5 shadow-[0_10px_30px_rgba(18,24,38,0.06)];
+}
+
+.input {
+  @apply w-full rounded-xl border border-black/10 px-4 py-3 outline-none ring-win-purple focus:ring-2;
+}
