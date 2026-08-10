@@ -12,6 +12,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Render / other reverse proxies terminate TLS; trust X-Forwarded-* so
+        // Filament URLs, cookies, and Livewire use https correctly.
+        $middleware->trustProxies(at: '*');
+
         $middleware->statefulApi();
 
         $middleware->alias([
