@@ -27,8 +27,9 @@ RUN composer dump-autoload --optimize \
 ENV PORT=10000
 EXPOSE 10000
 
-CMD php artisan migrate --force \
-  && php artisan config:cache \
-  && php artisan route:cache \
-  && php artisan view:cache \
-  && php artisan serve --host=0.0.0.0 --port=${PORT}
+# Map DATABASE_URL -> DB_URL for Laravel 12; prefer discrete DB_* when set.
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+ENTRYPOINT ["docker-entrypoint.sh"]
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=10000"]
