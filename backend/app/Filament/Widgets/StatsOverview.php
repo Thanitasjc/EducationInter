@@ -22,7 +22,8 @@ class StatsOverview extends BaseWidget
                 ->color('success'),
             Stat::make('นักเรียน', Student::query()->count())
                 ->description('นักเรียนที่ลงทะเบียน')
-                ->color('info'),
+                ->color('info')
+                ->url(\App\Filament\Resources\StudentResource::getUrl()),
             Stat::make('มหาวิทยาลัย', University::query()->count())
                 ->description('รายการในแคตตาล็อก')
                 ->color('warning'),
