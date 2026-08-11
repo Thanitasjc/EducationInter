@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\PostResource\Pages;
+use App\Filament\Forms\Components\MediaUpload;
 use App\Models\Post;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -39,12 +40,11 @@ class PostResource extends Resource
             Forms\Components\Textarea::make('excerpt_en')->rows(2),
             Forms\Components\Textarea::make('content_th')->rows(6)->columnSpanFull(),
             Forms\Components\Textarea::make('content_en')->rows(6)->columnSpanFull(),
-            Forms\Components\FileUpload::make('cover_path')
+            MediaUpload::make('cover_path')
                 ->label('รูปปก')
                 ->image()
                 ->directory('covers/posts')
-                ->disk('public')
-                ->imageEditor()
+                        ->imageEditor()
                 ->columnSpanFull(),
             Forms\Components\DateTimePicker::make('published_at'),
             Forms\Components\Toggle::make('is_active')->default(true),
@@ -55,7 +55,7 @@ class PostResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('cover_path')->label('Cover')->disk('public')->height(40),
+                Tables\Columns\ImageColumn::make('cover_path')->label('Cover')->height(40),
                 Tables\Columns\TextColumn::make('title_en')->searchable(),
                 Tables\Columns\TextColumn::make('category.name_en')->label('Category'),
                 Tables\Columns\TextColumn::make('published_at')->dateTime(),

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\CountryResource\Pages;
+use App\Filament\Forms\Components\MediaUpload;
 use App\Models\Country;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -35,12 +36,11 @@ class CountryResource extends Resource
             Forms\Components\TextInput::make('name_en')->required(),
             Forms\Components\Textarea::make('summary_th')->rows(3)->columnSpanFull(),
             Forms\Components\Textarea::make('summary_en')->rows(3)->columnSpanFull(),
-            Forms\Components\FileUpload::make('cover_path')
+            MediaUpload::make('cover_path')
                 ->label('รูปปก')
                 ->image()
                 ->directory('covers/countries')
-                ->disk('public')
-                ->imageEditor()
+                        ->imageEditor()
                 ->columnSpanFull(),
             Forms\Components\TextInput::make('sort_order')->numeric()->default(0),
             Forms\Components\Toggle::make('is_featured')->default(false),
@@ -52,7 +52,7 @@ class CountryResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('cover_path')->label('Cover')->disk('public')->height(40),
+                Tables\Columns\ImageColumn::make('cover_path')->label('Cover')->height(40),
                 Tables\Columns\TextColumn::make('name_th')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('name_en')->searchable(),
                 Tables\Columns\TextColumn::make('slug'),

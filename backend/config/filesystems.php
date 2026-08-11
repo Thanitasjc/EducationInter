@@ -17,6 +17,13 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Media disk used by Filament uploads (public local or S3 / Supabase).
+    |--------------------------------------------------------------------------
+    */
+    'media_disk' => env('MEDIA_DISK', env('FILESYSTEM_DISK', 'public')),
+
+    /*
+    |--------------------------------------------------------------------------
     | Filesystem Disks
     |--------------------------------------------------------------------------
     |
@@ -47,17 +54,24 @@ return [
             'report' => false,
         ],
 
+        /*
+        | Supabase Storage (S3-compatible):
+        | AWS_ENDPOINT=https://{ref}.supabase.co/storage/v1/s3
+        | AWS_URL=https://{ref}.supabase.co/storage/v1/object/public/{bucket}
+        | AWS_USE_PATH_STYLE_ENDPOINT=true
+        */
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),
             'secret' => env('AWS_SECRET_ACCESS_KEY'),
-            'region' => env('AWS_DEFAULT_REGION'),
-            'bucket' => env('AWS_BUCKET'),
+            'region' => env('AWS_DEFAULT_REGION', 'ap-southeast-1'),
+            'bucket' => env('AWS_BUCKET', 'media'),
             'url' => env('AWS_URL'),
             'endpoint' => env('AWS_ENDPOINT'),
-            'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
+            'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', true),
             'throw' => false,
             'report' => false,
+            'visibility' => 'public',
         ],
 
     ],

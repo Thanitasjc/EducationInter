@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ScholarshipResource\Pages;
+use App\Filament\Forms\Components\MediaUpload;
 use App\Models\Scholarship;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -37,12 +38,11 @@ class ScholarshipResource extends Resource
             Forms\Components\TextInput::make('amount_label_th'),
             Forms\Components\TextInput::make('amount_label_en'),
             Forms\Components\DatePicker::make('deadline'),
-            Forms\Components\FileUpload::make('cover_path')
+            MediaUpload::make('cover_path')
                 ->label('รูปปก')
                 ->image()
                 ->directory('covers/scholarships')
-                ->disk('public')
-                ->imageEditor()
+                        ->imageEditor()
                 ->columnSpanFull(),
             Forms\Components\Toggle::make('is_featured')->default(false),
             Forms\Components\Toggle::make('is_active')->default(true),
@@ -53,7 +53,7 @@ class ScholarshipResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('cover_path')->label('Cover')->disk('public')->height(40),
+                Tables\Columns\ImageColumn::make('cover_path')->label('Cover')->height(40),
                 Tables\Columns\TextColumn::make('title_en')->searchable(),
                 Tables\Columns\TextColumn::make('university.name_en'),
                 Tables\Columns\TextColumn::make('deadline')->date(),

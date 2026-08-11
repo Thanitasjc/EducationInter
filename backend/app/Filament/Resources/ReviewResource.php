@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ReviewResource\Pages;
+use App\Filament\Forms\Components\MediaUpload;
 use App\Models\Review;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -35,12 +36,11 @@ class ReviewResource extends Resource
             Forms\Components\TextInput::make('year')->maxLength(10),
             Forms\Components\Textarea::make('quote_th')->required()->rows(3),
             Forms\Components\Textarea::make('quote_en')->required()->rows(3),
-            Forms\Components\FileUpload::make('image_path')
+            MediaUpload::make('image_path')
                 ->label('รูปปก')
                 ->image()
                 ->directory('covers/reviews')
-                ->disk('public')
-                ->imageEditor()
+                        ->imageEditor()
                 ->columnSpanFull(),
             Forms\Components\TextInput::make('sort_order')->numeric()->default(0),
             Forms\Components\Toggle::make('is_featured')->default(true),
@@ -52,7 +52,7 @@ class ReviewResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('image_path')->label('Cover')->disk('public')->height(40),
+                Tables\Columns\ImageColumn::make('image_path')->label('Cover')->height(40),
                 Tables\Columns\TextColumn::make('student_name')->searchable(),
                 Tables\Columns\TextColumn::make('university_label'),
                 Tables\Columns\TextColumn::make('country_label'),

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\EventResource\Pages;
+use App\Filament\Forms\Components\MediaUpload;
 use App\Models\Event;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -36,12 +37,11 @@ class EventResource extends Resource
             Forms\Components\Textarea::make('summary_en')->rows(2),
             Forms\Components\Textarea::make('content_th')->rows(5)->columnSpanFull(),
             Forms\Components\Textarea::make('content_en')->rows(5)->columnSpanFull(),
-            Forms\Components\FileUpload::make('cover_path')
+            MediaUpload::make('cover_path')
                 ->label('รูปปก')
                 ->image()
                 ->directory('covers/events')
-                ->disk('public')
-                ->imageEditor()
+                        ->imageEditor()
                 ->columnSpanFull(),
             Forms\Components\TextInput::make('location'),
             Forms\Components\DateTimePicker::make('starts_at')->required(),

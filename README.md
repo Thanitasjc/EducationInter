@@ -119,22 +119,30 @@ DATABASE_URL=postgresql://postgres.velpsbmfvdydkhuitizo:X6wGpBGin68DNfD3@aws-0-a
 SESSION_DRIVER=file
 CACHE_STORE=file
 QUEUE_CONNECTION=sync
-FILESYSTEM_DISK=public
+FILESYSTEM_DISK=s3
+MEDIA_DISK=s3
+AWS_ACCESS_KEY_ID=<จาก Supabase Storage → S3 → New access key>
+AWS_SECRET_ACCESS_KEY=<secret ที่โชว์ครั้งเดียว>
+AWS_DEFAULT_REGION=ap-southeast-1
+AWS_BUCKET=media
+AWS_ENDPOINT=https://velpsbmfvdydkhuitizo.storage.supabase.co/storage/v1/s3
+AWS_URL=https://velpsbmfvdydkhuitizo.supabase.co/storage/v1/object/public/media
+AWS_USE_PATH_STYLE_ENDPOINT=true
 SANCTUM_STATEFUL_DOMAINS=education-inter.vercel.app
 ```
 
-> **สำคัญเรื่องรูปภาพ:** Render Free ไม่เก็บไฟล์อัปโหลดถาวร (`storage/app/public` ถูกล้างทุก deploy)  
-> - ใช้ **URL รูปภายนอก** (เช่น Unsplash) ในช่อง cover จะทน deploy  
-> - หรือต่อ **Supabase Storage / S3** แล้วตั้ง `NEXT_PUBLIC_MEDIA_BASE_URL`  
-> - กู้รูป demo ที่พัง: `php artisan media:restore-demo-urls`
+> **รูปภาพถาวร (Supabase Storage):**  
+> 1. สร้าง bucket สาธารณะชื่อ `media` (ทำแล้วในโปรเจกต์นี้)  
+> 2. สร้าง S3 access key ที่ Storage → S3 แล้วใส่ `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` บน Render  
+> 3. Filament อัปโหลดจะเก็บ **URL สาธารณะ** ใน DB → ทน redeploy  
+> 4. กู้รูป demo เก่าที่พัง: `php artisan media:restore-demo-urls`
 
 ### Env บน Vercel (frontend)
 
 ```env
 NEXT_PUBLIC_API_URL=https://education-inter-api.onrender.com/api
 NEXT_PUBLIC_SITE_URL=https://education-inter.vercel.app
-# optional เมื่อใช้ storage ภายนอกถาวร:
-# NEXT_PUBLIC_MEDIA_BASE_URL=https://YOUR_PROJECT.supabase.co/storage/v1/object/public/media
+NEXT_PUBLIC_MEDIA_BASE_URL=https://velpsbmfvdydkhuitizo.supabase.co/storage/v1/object/public/media
 ```
 
 ---

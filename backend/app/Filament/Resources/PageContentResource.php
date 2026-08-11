@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\PageContentResource\Pages;
+use App\Filament\Forms\Components\MediaUpload;
 use App\Models\PageContent;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -81,12 +82,11 @@ class PageContentResource extends Resource
                     Forms\Components\Repeater::make('value.slides')
                         ->label('Slides')
                         ->schema([
-                            Forms\Components\FileUpload::make('image')
+                            MediaUpload::make('image')
                                 ->label('Cover image')
                                 ->image()
                                 ->directory('pages/hero')
-                                ->disk('public')
-                                ->imageEditor()
+                                                        ->imageEditor()
                                 ->maxSize(8192)
                                 ->helperText('อัปโหลดรูปปกสไลด์')
                                 ->columnSpanFull(),
@@ -151,12 +151,11 @@ class PageContentResource extends Resource
                     Forms\Components\Textarea::make('value.meta_description_en')->label('Meta description (EN)')->rows(2),
                     Forms\Components\TextInput::make('value.promo_banner_th')->label('Promo banner (TH)')->columnSpanFull(),
                     Forms\Components\TextInput::make('value.promo_banner_en')->label('Promo banner (EN)')->columnSpanFull(),
-                    Forms\Components\FileUpload::make('value.hero_image')
+                    MediaUpload::make('value.hero_image')
                         ->label('Hero image')
                         ->image()
                         ->directory('pages/academic-year')
-                        ->disk('public')
-                        ->imageEditor()
+                                        ->imageEditor()
                         ->maxSize(5120)
                         ->helperText('อัปโหลดรูป หรือใส่ URL ภายนอกในช่องด้านล่างถ้ายังไม่อัปโหลด')
                         ->columnSpanFull(),

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ServiceResource\Pages;
+use App\Filament\Forms\Components\MediaUpload;
 use App\Models\Service;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -37,12 +38,11 @@ class ServiceResource extends Resource
             Forms\Components\TextInput::make('cta_label_th'),
             Forms\Components\TextInput::make('cta_label_en'),
             Forms\Components\TextInput::make('cta_url'),
-            Forms\Components\FileUpload::make('image_path')
+            MediaUpload::make('image_path')
                 ->label('รูปปก')
                 ->image()
                 ->directory('covers/services')
-                ->disk('public')
-                ->imageEditor()
+                        ->imageEditor()
                 ->columnSpanFull(),
             Forms\Components\TextInput::make('sort_order')->numeric()->default(0),
             Forms\Components\Toggle::make('is_active')->default(true),
@@ -53,7 +53,7 @@ class ServiceResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('image_path')->label('Cover')->disk('public')->height(40),
+                Tables\Columns\ImageColumn::make('image_path')->label('Cover')->height(40),
                 Tables\Columns\TextColumn::make('title_th')->searchable(),
                 Tables\Columns\TextColumn::make('title_en'),
                 Tables\Columns\TextColumn::make('sort_order')->sortable(),

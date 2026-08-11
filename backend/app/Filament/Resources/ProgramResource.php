@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProgramResource\Pages;
+use App\Filament\Forms\Components\MediaUpload;
 use App\Models\Program;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -52,12 +53,11 @@ class ProgramResource extends Resource
             Forms\Components\TagsInput::make('destinations')
                 ->placeholder('uk, usa, australia...')
                 ->helperText('Country slugs e.g. uk, usa, australia'),
-            Forms\Components\FileUpload::make('cover_path')
+            MediaUpload::make('cover_path')
                 ->label('รูปปก')
                 ->image()
                 ->directory('covers/programs')
-                ->disk('public')
-                ->imageEditor()
+                        ->imageEditor()
                 ->columnSpanFull(),
             Forms\Components\TextInput::make('cta_label_th'),
             Forms\Components\TextInput::make('cta_label_en'),
@@ -72,7 +72,7 @@ class ProgramResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('cover_path')->label('Cover')->disk('public')->height(40),
+                Tables\Columns\ImageColumn::make('cover_path')->label('Cover')->height(40),
                 Tables\Columns\TextColumn::make('title_en')->searchable(),
                 Tables\Columns\TextColumn::make('age_label')->label('Age'),
                 Tables\Columns\TextColumn::make('language')->badge(),

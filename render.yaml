@@ -46,6 +46,22 @@ services:
       - key: QUEUE_CONNECTION
         value: sync
       - key: FILESYSTEM_DISK
-        value: public
+        value: s3
+      - key: MEDIA_DISK
+        value: s3
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: AWS_DEFAULT_REGION
+        value: ap-southeast-1
+      - key: AWS_BUCKET
+        value: media
+      - key: AWS_ENDPOINT
+        value: https://velpsbmfvdydkhuitizo.storage.supabase.co/storage/v1/s3
+      - key: AWS_URL
+        value: https://velpsbmfvdydkhuitizo.supabase.co/storage/v1/object/public/media
+      - key: AWS_USE_PATH_STYLE_ENDPOINT
+        value: "true"
       - key: SANCTUM_STATEFUL_DOMAINS
         sync: false

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\PartnerResource\Pages;
+use App\Filament\Forms\Components\MediaUpload;
 use App\Models\Partner;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -37,12 +38,11 @@ class PartnerResource extends Resource
                 ->label('Website / link')
                 ->url()
                 ->maxLength(255),
-            Forms\Components\FileUpload::make('logo_path')
+            MediaUpload::make('logo_path')
                 ->label('Logo / card image')
                 ->image()
                 ->directory('partners')
-                ->disk('public')
-                ->imageEditor()
+                        ->imageEditor()
                 ->maxSize(8192)
                 ->helperText('อัปโหลดโลโก้หรือการ์ดพาทเนอร์')
                 ->columnSpanFull(),
@@ -65,8 +65,7 @@ class PartnerResource extends Resource
             ->columns([
                 Tables\Columns\ImageColumn::make('logo_path')
                     ->label('Logo')
-                    ->disk('public')
-                    ->height(40)
+                                ->height(40)
                     ->getStateUsing(function (Partner $record): ?string {
                         $path = $record->logo_path;
                         if (is_string($path) && str_starts_with($path, 'http')) {

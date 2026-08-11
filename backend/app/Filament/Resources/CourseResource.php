@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\CourseResource\Pages;
+use App\Filament\Forms\Components\MediaUpload;
 use App\Models\Course;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -52,12 +53,11 @@ class CourseResource extends Resource
             Forms\Components\TextInput::make('currency')->default('GBP'),
             Forms\Components\Textarea::make('summary_th')->rows(3),
             Forms\Components\Textarea::make('summary_en')->rows(3),
-            Forms\Components\FileUpload::make('cover_path')
+            MediaUpload::make('cover_path')
                 ->label('รูปปก')
                 ->image()
                 ->directory('covers/courses')
-                ->disk('public')
-                ->imageEditor()
+                        ->imageEditor()
                 ->columnSpanFull(),
             Forms\Components\Toggle::make('is_popular')->default(false),
             Forms\Components\Toggle::make('is_active')->default(true),

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\UniversityResource\Pages;
+use App\Filament\Forms\Components\MediaUpload;
 use App\Models\University;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -46,19 +47,17 @@ class UniversityResource extends Resource
             Forms\Components\TextInput::make('currency')->default('GBP'),
             Forms\Components\Textarea::make('about_th')->rows(4)->columnSpanFull(),
             Forms\Components\Textarea::make('about_en')->rows(4)->columnSpanFull(),
-            Forms\Components\FileUpload::make('cover_path')
+            MediaUpload::make('cover_path')
                 ->label('รูปปก')
                 ->image()
                 ->directory('covers/universities')
-                ->disk('public')
-                ->imageEditor()
+                        ->imageEditor()
                 ->columnSpanFull(),
-            Forms\Components\FileUpload::make('logo_path')
+            MediaUpload::make('logo_path')
                 ->label('โลโก้')
                 ->image()
                 ->directory('covers/universities/logos')
-                ->disk('public')
-                ->columnSpanFull(),
+                                ->columnSpanFull(),
             Forms\Components\Toggle::make('is_featured')->default(false),
             Forms\Components\Toggle::make('is_active')->default(true),
         ]);
@@ -68,7 +67,7 @@ class UniversityResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('cover_path')->label('Cover')->disk('public')->height(40),
+                Tables\Columns\ImageColumn::make('cover_path')->label('Cover')->height(40),
                 Tables\Columns\TextColumn::make('name_en')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('country.name_en')->label('Country'),
                 Tables\Columns\TextColumn::make('ranking_qs')->label('QS'),

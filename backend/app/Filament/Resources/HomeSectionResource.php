@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\HomeSectionResource\Pages;
+use App\Filament\Forms\Components\MediaUpload;
 use App\Models\HomeSection;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -61,12 +62,11 @@ class HomeSectionResource extends Resource
 
             Forms\Components\Section::make('Cover image')
                 ->schema([
-                    Forms\Components\FileUpload::make('cover_path')
+                    MediaUpload::make('cover_path')
                         ->label('รูปปก Section')
                         ->image()
                         ->directory('sections')
-                        ->disk('public')
-                        ->imageEditor()
+                                        ->imageEditor()
                         ->maxSize(5120)
                         ->helperText('Upload cover image for this homepage section'),
                 ]),
@@ -88,12 +88,11 @@ class HomeSectionResource extends Resource
                             Forms\Components\Textarea::make('summary_en')->rows(2),
                             Forms\Components\TextInput::make('href')->placeholder('/learn-language'),
                             Forms\Components\Toggle::make('external')->default(false),
-                            Forms\Components\FileUpload::make('cover_path')
+                            MediaUpload::make('cover_path')
                                 ->label('Item cover image')
                                 ->image()
                                 ->directory('sections/items')
-                                ->disk('public')
-                                ->imageEditor()
+                                                        ->imageEditor()
                                 ->maxSize(5120)
                                 ->helperText('อัปโหลดรูปปกการ์ด หรือปล่อยว่างแล้วใส่ URL ในช่องด้านล่าง')
                                 ->columnSpanFull(),
@@ -127,8 +126,7 @@ class HomeSectionResource extends Resource
             ->columns([
                 Tables\Columns\ImageColumn::make('cover_path')
                     ->label('Cover')
-                    ->disk('public')
-                    ->height(48)
+                                ->height(48)
                     ->square(),
                 Tables\Columns\TextColumn::make('key')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('title_th')->limit(30),
