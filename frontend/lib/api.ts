@@ -247,6 +247,7 @@ export async function login(email: string, password: string) {
     method: "POST",
     body: JSON.stringify({ email, password }),
     next: { revalidate: 0 },
+    cache: "no-store",
   });
 }
 

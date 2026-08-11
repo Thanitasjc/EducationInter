@@ -16,7 +16,8 @@ return Application::configure(basePath: dirname(__DIR__))
         // Filament URLs, cookies, and Livewire use https correctly.
         $middleware->trustProxies(at: '*');
 
-        $middleware->statefulApi();
+        // Student portal uses Sanctum personal access tokens (Bearer), not cookie SPA auth.
+        // statefulApi() applies CSRF to requests from localhost:3000 and breaks /api/auth/login (419).
 
         $middleware->alias([
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
