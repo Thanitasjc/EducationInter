@@ -16,7 +16,13 @@ class EventResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-calendar-days';
 
-    protected static ?string $navigationGroup = 'CMS';
+    protected static ?string $navigationGroup = 'เนื้อหาเว็บ';
+
+    protected static ?string $navigationLabel = 'กิจกรรม';
+
+    protected static ?string $modelLabel = 'กิจกรรม';
+
+    protected static ?string $pluralModelLabel = 'กิจกรรม';
 
     protected static ?int $navigationSort = 8;
 

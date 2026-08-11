@@ -16,7 +16,13 @@ class CourseResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-book-open';
 
-    protected static ?string $navigationGroup = 'CMS';
+    protected static ?string $navigationGroup = 'เนื้อหาเว็บ';
+
+    protected static ?string $navigationLabel = 'หลักสูตร';
+
+    protected static ?string $modelLabel = 'หลักสูตร';
+
+    protected static ?string $pluralModelLabel = 'หลักสูตร';
 
     protected static ?int $navigationSort = 3;
 

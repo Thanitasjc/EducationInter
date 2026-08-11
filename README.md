@@ -123,11 +123,18 @@ FILESYSTEM_DISK=public
 SANCTUM_STATEFUL_DOMAINS=education-inter.vercel.app
 ```
 
+> **สำคัญเรื่องรูปภาพ:** Render Free ไม่เก็บไฟล์อัปโหลดถาวร (`storage/app/public` ถูกล้างทุก deploy)  
+> - ใช้ **URL รูปภายนอก** (เช่น Unsplash) ในช่อง cover จะทน deploy  
+> - หรือต่อ **Supabase Storage / S3** แล้วตั้ง `NEXT_PUBLIC_MEDIA_BASE_URL`  
+> - กู้รูป demo ที่พัง: `php artisan media:restore-demo-urls`
+
 ### Env บน Vercel (frontend)
 
 ```env
 NEXT_PUBLIC_API_URL=https://education-inter-api.onrender.com/api
 NEXT_PUBLIC_SITE_URL=https://education-inter.vercel.app
+# optional เมื่อใช้ storage ภายนอกถาวร:
+# NEXT_PUBLIC_MEDIA_BASE_URL=https://YOUR_PROJECT.supabase.co/storage/v1/object/public/media
 ```
 
 ---
@@ -205,6 +212,9 @@ php artisan serve --port=8001
 
 - API: http://127.0.0.1:8001/api  
 - Admin: http://127.0.0.1:8001/admin  
+
+- https://education-inter-api.onrender.com/admin
+
 - ผู้ใช้ seed:  
   - Admin: `admin@wineducation.local` / `password`  
   - Consultant: `consultant@wineducation.local` / `password`  

@@ -16,7 +16,13 @@ class ServiceResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-briefcase';
 
-    protected static ?string $navigationGroup = 'CMS';
+    protected static ?string $navigationGroup = 'เนื้อหาเว็บ';
+
+    protected static ?string $navigationLabel = 'บริการ';
+
+    protected static ?string $modelLabel = 'บริการ';
+
+    protected static ?string $pluralModelLabel = 'บริการ';
 
     protected static ?int $navigationSort = 5;
 

@@ -65,16 +65,35 @@ const FALLBACK_COVERS: Record<string, string> = {
   "ielts-strategy-session":
     "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80",
   cta: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1600&q=80",
+  "bachelor-pathways":
+    "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1600&q=80",
 };
 
 export const DEFAULT_COVER =
   "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1200&q=80";
 
+function isAbsoluteUrl(path: string): boolean {
+  return path.startsWith("http://") || path.startsWith("https://");
+}
+
+/**
+ * Resolve a media path to a URL.
+ * Absolute URLs are returned as-is.
+ * Relative paths need either API /storage (ephemeral on Render free)
+ * or NEXT_PUBLIC_MEDIA_BASE_URL (e.g. Supabase Storage public base).
+ */
 export function mediaUrl(path?: string | null): string | null {
   if (!path) return null;
-  if (path.startsWith("http://") || path.startsWith("https://")) return path;
-  const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/?$/, "") ?? "";
-  return `${base}/storage/${path.replace(/^\/+/, "")}`;
+  if (isAbsoluteUrl(path)) return path;
+
+  const durableBase = process.env.NEXT_PUBLIC_MEDIA_BASE_URL?.replace(/\/$/, "");
+  if (durableBase) {
+    return `${durableBase}/${path.replace(/^\/+/, "")}`;
+  }
+
+  const apiBase = process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/?$/, "") ?? "";
+  if (!apiBase) return null;
+  return `${apiBase}/storage/${path.replace(/^\/+/, "")}`;
 }
 
 export function coverFor(
@@ -82,8 +101,16 @@ export function coverFor(
   ...paths: Array<string | null | undefined>
 ): string {
   for (const path of paths) {
-    const url = mediaUrl(path);
-    if (url) return url;
+    if (!path) continue;
+
+    // Prefer durable absolute URLs. Relative Render uploads often 404 after redeploy.
+    if (isAbsoluteUrl(path)) return path;
+
+    if (process.env.NEXT_PUBLIC_MEDIA_BASE_URL) {
+      const url = mediaUrl(path);
+      if (url) return url;
+    }
   }
+
   return FALLBACK_COVERS[slug] || DEFAULT_COVER;
 }

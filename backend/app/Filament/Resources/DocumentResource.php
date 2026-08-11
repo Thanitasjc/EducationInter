@@ -19,7 +19,13 @@ class DocumentResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-folder-open';
 
-    protected static ?string $navigationGroup = 'Admission';
+    protected static ?string $navigationGroup = 'การรับสมัคร';
+
+    protected static ?string $navigationLabel = 'เอกสาร';
+
+    protected static ?string $modelLabel = 'เอกสาร';
+
+    protected static ?string $pluralModelLabel = 'เอกสาร';
 
     protected static ?int $navigationSort = 2;
 

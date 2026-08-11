@@ -903,7 +903,7 @@ class DemoContentSeeder extends Seeder
                 'layout' => 'pathways_split',
                 'title_th' => 'ทางเลือกในการ เรียนต่อ ปริญญาตรี ต่างประเทศ',
                 'title_en' => 'Pathways to study a Bachelor’s degree abroad',
-                'cover_path' => 'sections/bachelor-pathways.png',
+                'cover_path' => 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1600&q=80',
                 'sort_order' => 35,
                 'items' => [
                     [

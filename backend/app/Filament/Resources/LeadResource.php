@@ -25,7 +25,13 @@ class LeadResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-inbox-arrow-down';
 
-    protected static ?string $navigationGroup = 'CRM';
+    protected static ?string $navigationGroup = 'ลูกค้าสัมพันธ์';
+
+    protected static ?string $navigationLabel = 'ลีด';
+
+    protected static ?string $modelLabel = 'ลีด';
+
+    protected static ?string $pluralModelLabel = 'ลีด';
 
     protected static ?int $navigationSort = 1;
 

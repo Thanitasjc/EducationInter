@@ -23,7 +23,13 @@ class ApplicationResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
-    protected static ?string $navigationGroup = 'Admission';
+    protected static ?string $navigationGroup = 'การรับสมัคร';
+
+    protected static ?string $navigationLabel = 'ใบสมัคร';
+
+    protected static ?string $modelLabel = 'ใบสมัคร';
+
+    protected static ?string $pluralModelLabel = 'ใบสมัคร';
 
     protected static ?int $navigationSort = 1;
 

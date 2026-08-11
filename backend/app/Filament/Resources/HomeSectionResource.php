@@ -16,13 +16,15 @@ class HomeSectionResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-group';
 
-    protected static ?string $navigationGroup = 'CMS';
+    protected static ?string $navigationGroup = 'เนื้อหาเว็บ';
 
     protected static ?int $navigationSort = 1;
 
-    protected static ?string $navigationLabel = 'Home Sections';
+    protected static ?string $navigationLabel = 'ส่วนหน้าแรก';
 
-    protected static ?string $modelLabel = 'Home Section';
+    protected static ?string $modelLabel = 'ส่วนหน้าแรก';
+
+    protected static ?string $pluralModelLabel = 'ส่วนหน้าแรก';
 
     public static function form(Form $form): Form
     {

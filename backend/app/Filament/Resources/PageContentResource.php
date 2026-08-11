@@ -17,13 +17,15 @@ class PageContentResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
-    protected static ?string $navigationGroup = 'CMS';
+    protected static ?string $navigationGroup = 'เนื้อหาเว็บ';
 
     protected static ?int $navigationSort = 2;
 
-    protected static ?string $navigationLabel = 'Page Contents';
+    protected static ?string $navigationLabel = 'เนื้อหาเพจ';
 
-    protected static ?string $modelLabel = 'Page Content';
+    protected static ?string $modelLabel = 'เนื้อหาเพจ';
+
+    protected static ?string $pluralModelLabel = 'เนื้อหาเพจ';
 
     public static function form(Form $form): Form
     {

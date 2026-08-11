@@ -14,17 +14,17 @@ class StatsOverview extends BaseWidget
     protected function getStats(): array
     {
         return [
-            Stat::make('Leads', Lead::query()->count())
-                ->description('All inbound leads')
+            Stat::make('ลีด', Lead::query()->count())
+                ->description('ลีดทั้งหมดที่เข้ามา')
                 ->color('primary'),
-            Stat::make('Applications', Application::query()->count())
-                ->description('Admission pipeline')
+            Stat::make('ใบสมัคร', Application::query()->count())
+                ->description('ท่อการรับสมัคร')
                 ->color('success'),
-            Stat::make('Students', Student::query()->count())
-                ->description('Registered students')
+            Stat::make('นักเรียน', Student::query()->count())
+                ->description('นักเรียนที่ลงทะเบียน')
                 ->color('info'),
-            Stat::make('Universities', University::query()->count())
-                ->description('Catalog entries')
+            Stat::make('มหาวิทยาลัย', University::query()->count())
+                ->description('รายการในแคตตาล็อก')
                 ->color('warning'),
         ];
     }

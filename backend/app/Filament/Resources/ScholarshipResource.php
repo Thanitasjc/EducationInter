@@ -16,7 +16,13 @@ class ScholarshipResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-academic-cap';
 
-    protected static ?string $navigationGroup = 'CMS';
+    protected static ?string $navigationGroup = 'เนื้อหาเว็บ';
+
+    protected static ?string $navigationLabel = 'ทุนการศึกษา';
+
+    protected static ?string $modelLabel = 'ทุนการศึกษา';
+
+    protected static ?string $pluralModelLabel = 'ทุนการศึกษา';
 
     protected static ?int $navigationSort = 4;
 

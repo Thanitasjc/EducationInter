@@ -16,7 +16,13 @@ class UniversityResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-building-library';
 
-    protected static ?string $navigationGroup = 'CMS';
+    protected static ?string $navigationGroup = 'เนื้อหาเว็บ';
+
+    protected static ?string $navigationLabel = 'มหาวิทยาลัย';
+
+    protected static ?string $modelLabel = 'มหาวิทยาลัย';
+
+    protected static ?string $pluralModelLabel = 'มหาวิทยาลัย';
 
     protected static ?int $navigationSort = 2;
 

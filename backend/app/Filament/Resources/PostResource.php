@@ -16,11 +16,15 @@ class PostResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-newspaper';
 
-    protected static ?string $navigationGroup = 'CMS';
+    protected static ?string $navigationGroup = 'เนื้อหาเว็บ';
 
     protected static ?int $navigationSort = 7;
 
-    protected static ?string $navigationLabel = 'Blog';
+    protected static ?string $navigationLabel = 'บล็อก';
+
+    protected static ?string $modelLabel = 'บทความ';
+
+    protected static ?string $pluralModelLabel = 'บทความ';
 
     public static function form(Form $form): Form
     {

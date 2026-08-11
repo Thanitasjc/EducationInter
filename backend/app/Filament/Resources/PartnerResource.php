@@ -16,13 +16,15 @@ class PartnerResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-building-library';
 
-    protected static ?string $navigationGroup = 'CMS';
+    protected static ?string $navigationGroup = 'เนื้อหาเว็บ';
 
     protected static ?int $navigationSort = 7;
 
-    protected static ?string $navigationLabel = 'Partners';
+    protected static ?string $navigationLabel = 'พาร์ทเนอร์';
 
-    protected static ?string $modelLabel = 'Partner';
+    protected static ?string $modelLabel = 'พาร์ทเนอร์';
+
+    protected static ?string $pluralModelLabel = 'พาร์ทเนอร์';
 
     public static function form(Form $form): Form
     {

@@ -16,11 +16,15 @@ class ReviewResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-chat-bubble-bottom-center-text';
 
-    protected static ?string $navigationGroup = 'CMS';
+    protected static ?string $navigationGroup = 'เนื้อหาเว็บ';
 
     protected static ?int $navigationSort = 6;
 
-    protected static ?string $navigationLabel = 'Success Stories';
+    protected static ?string $navigationLabel = 'เรื่องราวความสำเร็จ';
+
+    protected static ?string $modelLabel = 'เรื่องราวความสำเร็จ';
+
+    protected static ?string $pluralModelLabel = 'เรื่องราวความสำเร็จ';
 
     public static function form(Form $form): Form
     {

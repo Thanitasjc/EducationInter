@@ -16,11 +16,15 @@ class ProgramResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-language';
 
-    protected static ?string $navigationGroup = 'CMS';
+    protected static ?string $navigationGroup = 'เนื้อหาเว็บ';
 
     protected static ?int $navigationSort = 4;
 
-    protected static ?string $navigationLabel = 'Language Programs';
+    protected static ?string $navigationLabel = 'โปรแกรมภาษา';
+
+    protected static ?string $modelLabel = 'โปรแกรมภาษา';
+
+    protected static ?string $pluralModelLabel = 'โปรแกรมภาษา';
 
     public static function form(Form $form): Form
     {

@@ -16,7 +16,13 @@ class CountryResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-globe-asia-australia';
 
-    protected static ?string $navigationGroup = 'CMS';
+    protected static ?string $navigationGroup = 'เนื้อหาเว็บ';
+
+    protected static ?string $navigationLabel = 'ประเทศ';
+
+    protected static ?string $modelLabel = 'ประเทศ';
+
+    protected static ?string $pluralModelLabel = 'ประเทศ';
 
     protected static ?int $navigationSort = 1;
 

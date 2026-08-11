@@ -4,6 +4,7 @@ import { Check, ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Link } from "@/i18n/navigation";
 import type { Scholarship } from "@/types/catalog";
+import { coverFor, mediaUrl } from "@/lib/media";
 import { cn, localized } from "@/lib/utils";
 
 type Props = {
@@ -27,27 +28,6 @@ type UniversityGroup = {
   items: Scholarship[];
 };
 
-const FALLBACK_COVERS: Record<string, string> = {
-  "university-of-manchester":
-    "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=1200&q=80",
-  "university-college-london":
-    "https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=1200&q=80",
-  "university-of-melbourne":
-    "https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&w=1200&q=80",
-  "university-of-toronto":
-    "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1200&q=80",
-};
-
-const DEFAULT_COVER =
-  "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1200&q=80";
-
-function mediaUrl(path?: string | null) {
-  if (!path) return null;
-  if (path.startsWith("http://") || path.startsWith("https://")) return path;
-  const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/?$/, "") ?? "";
-  return `${base}/storage/${path.replace(/^\/+/, "")}`;
-}
-
 function groupScholarships(scholarships: Scholarship[], locale: string): UniversityGroup[] {
   const groups = new Map<string, UniversityGroup>();
 
@@ -62,12 +42,11 @@ function groupScholarships(scholarships: Scholarship[], locale: string): Univers
     }
 
     const slug = uni?.slug ?? item.slug;
-    const cover =
-      mediaUrl(item.cover_path) ||
-      mediaUrl(uni?.cover_path) ||
-      FALLBACK_COVERS[slug] ||
-      DEFAULT_COVER;
-    const logo = mediaUrl(item.logo_path) || mediaUrl(uni?.logo_path);
+    const cover = coverFor(slug, item.cover_path, uni?.cover_path);
+    const logoPath = [item.logo_path, uni?.logo_path].find(
+      (path) => typeof path === "string" && (path.startsWith("http://") || path.startsWith("https://"))
+    );
+    const logo = mediaUrl(logoPath ?? null);
     // Match brand mock: university title stays English; tagline follows locale.
     const name = uni
       ? String(uni.name_en || localized(uni, locale, "name"))
