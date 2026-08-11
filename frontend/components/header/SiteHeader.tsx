@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useId, useState } from "react";
-import { Menu, X } from "lucide-react";
+import { CircleUserRound, Menu, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
+import { getToken, AUTH_CHANGE_EVENT } from "@/lib/auth";
 
 const links = [
   { href: "/about", key: "about" },
@@ -24,11 +25,25 @@ export function SiteHeader() {
   const pathname = usePathname();
   const nextLocale = locale === "th" ? "en" : "th";
   const [open, setOpen] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
   const menuId = useId();
 
   useEffect(() => {
     setOpen(false);
   }, [pathname, locale]);
+
+  useEffect(() => {
+    const syncAuth = () => setLoggedIn(Boolean(getToken()));
+    syncAuth();
+    window.addEventListener("storage", syncAuth);
+    window.addEventListener("focus", syncAuth);
+    window.addEventListener(AUTH_CHANGE_EVENT, syncAuth);
+    return () => {
+      window.removeEventListener("storage", syncAuth);
+      window.removeEventListener("focus", syncAuth);
+      window.removeEventListener(AUTH_CHANGE_EVENT, syncAuth);
+    };
+  }, [pathname]);
 
   useEffect(() => {
     if (!open) return;
@@ -74,12 +89,25 @@ export function SiteHeader() {
           >
             {nextLocale}
           </Link>
-          <Link
-            href="/login"
-            className="btn-primary !hidden !py-2 !text-xs lg:!inline-flex"
-          >
-            {t("login")}
-          </Link>
+
+          {loggedIn ? (
+            <Link
+              href="/student/dashboard"
+              aria-label={t("account")}
+              title={t("account")}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-win-purple/20 bg-win-sky text-win-purple transition hover:border-win-purple/40 hover:bg-win-purple hover:text-white"
+            >
+              <CircleUserRound className="h-5 w-5" strokeWidth={2} />
+            </Link>
+          ) : (
+            <Link
+              href="/login"
+              className="btn-primary !hidden !py-2 !text-xs lg:!inline-flex"
+            >
+              {t("login")}
+            </Link>
+          )}
+
           <button
             type="button"
             className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-black/10 text-win-ink transition hover:border-win-purple/40 hover:text-win-purple lg:hidden"
@@ -108,13 +136,24 @@ export function SiteHeader() {
               {t(link.key)}
             </Link>
           ))}
-          <Link
-            href="/login"
-            className="btn-primary mt-2 justify-center"
-            onClick={() => setOpen(false)}
-          >
-            {t("login")}
-          </Link>
+          {loggedIn ? (
+            <Link
+              href="/student/dashboard"
+              className="mt-2 inline-flex items-center justify-center gap-2 rounded-xl border border-win-purple/20 bg-win-sky px-5 py-3 text-sm font-semibold text-win-purple"
+              onClick={() => setOpen(false)}
+            >
+              <CircleUserRound className="h-5 w-5" strokeWidth={2} />
+              {t("account")}
+            </Link>
+          ) : (
+            <Link
+              href="/login"
+              className="btn-primary mt-2 justify-center"
+              onClick={() => setOpen(false)}
+            >
+              {t("login")}
+            </Link>
+          )}
         </nav>
       </div>
     </header>
