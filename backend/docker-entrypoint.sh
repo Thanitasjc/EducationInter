@@ -9,6 +9,8 @@ fi
 export PORT="${PORT:-10000}"
 
 php artisan migrate --force
+# Insert-only CRM demo rows (firstOrCreate). Never truncates or overwrites existing data.
+php artisan db:seed --class=SafeDemoCrmSeeder --force || true
 php artisan storage:link || true
 php artisan config:cache
 php artisan route:cache
