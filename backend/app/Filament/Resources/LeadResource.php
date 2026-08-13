@@ -16,6 +16,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Schema;
 
 class LeadResource extends Resource
 {
@@ -89,8 +90,18 @@ class LeadResource extends Resource
             Forms\Components\DateTimePicker::make('last_contact_at')->disabled()->seconds(false),
             Forms\Components\DateTimePicker::make('next_follow_up_at')
                 ->label('Next follow-up')
-                ->seconds(false),
+                ->seconds(false)
+                ->visible(fn (): bool => static::hasFollowUpColumn()),
         ]);
+    }
+
+    protected static function hasFollowUpColumn(): bool
+    {
+        try {
+            return Schema::hasColumn('leads', 'next_follow_up_at');
+        } catch (\Throwable) {
+            return false;
+        }
     }
 
     public static function table(Table $table): Table
@@ -115,7 +126,8 @@ class LeadResource extends Resource
                     ->label('Follow-up')
                     ->dateTime()
                     ->sortable()
-                    ->color(fn ($state) => $state && $state <= now() ? 'danger' : null),
+                    ->color(fn ($state) => $state && $state <= now() ? 'danger' : null)
+                    ->visible(fn (): bool => static::hasFollowUpColumn()),
                 Tables\Columns\TextColumn::make('created_at')->dateTime()->sortable(),
             ])
             ->defaultSort('created_at', 'desc')
@@ -141,7 +153,12 @@ class LeadResource extends Resource
                         'upcoming' => 'Upcoming (7 days)',
                         'unset' => 'No follow-up set',
                     ])
+                    ->visible(fn (): bool => static::hasFollowUpColumn())
                     ->query(function (Builder $query, array $data): Builder {
+                        if (! static::hasFollowUpColumn()) {
+                            return $query;
+                        }
+
                         return match ($data['value'] ?? null) {
                             'due' => $query->whereNotNull('next_follow_up_at')
                                 ->where('next_follow_up_at', '<=', now()->endOfDay()),

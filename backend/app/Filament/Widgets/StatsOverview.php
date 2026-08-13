@@ -9,16 +9,25 @@ use App\Models\Lead;
 use App\Models\Student;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Illuminate\Support\Facades\Schema;
 
 class StatsOverview extends BaseWidget
 {
     protected function getStats(): array
     {
-        $dueFollowUps = Lead::query()
-            ->whereNotIn('status', ['success', 'lost'])
-            ->whereNotNull('next_follow_up_at')
-            ->where('next_follow_up_at', '<=', now()->endOfDay())
-            ->count();
+        $dueFollowUps = 0;
+
+        try {
+            if (Schema::hasColumn('leads', 'next_follow_up_at')) {
+                $dueFollowUps = Lead::query()
+                    ->whereNotIn('status', ['success', 'lost'])
+                    ->whereNotNull('next_follow_up_at')
+                    ->where('next_follow_up_at', '<=', now()->endOfDay())
+                    ->count();
+            }
+        } catch (\Throwable) {
+            $dueFollowUps = 0;
+        }
 
         return [
             Stat::make('ลีด', Lead::query()->count())

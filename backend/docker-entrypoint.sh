@@ -8,13 +8,14 @@ fi
 # Render injects PORT; artisan serve needs it.
 export PORT="${PORT:-10000}"
 
-php artisan migrate --force
+# Prefer completing boot even if a non-critical migrate step races; log failures to stderr.
+php artisan migrate --force || echo "migrate failed" >&2
 # Insert-only CRM demo rows (firstOrCreate). Never truncates or overwrites existing data.
 php artisan db:seed --class=SafeDemoCrmSeeder --force || true
 php artisan storage:link || true
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
+php artisan config:cache || true
+php artisan route:cache || true
+php artisan view:cache || true
 
 if [ "$#" -eq 0 ]; then
   set -- php artisan serve --host=0.0.0.0 --port="$PORT"

@@ -10,6 +10,7 @@ use Filament\Pages\Page;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class CrmLeadReport extends Page
 {
@@ -21,7 +22,7 @@ class CrmLeadReport extends Page
 
     protected static ?string $navigationLabel = 'รายงานลีด';
 
-    protected static ?string $title = 'Lead source → conversion';
+    protected static ?string $title = 'Lead source to conversion';
 
     protected static ?int $navigationSort = 5;
 
@@ -70,10 +71,17 @@ class CrmLeadReport extends Page
                     ->where('source', $row->source)
                     ->whereIn('status', $successStatuses)
                     ->count();
-                $withApp = Lead::query()
-                    ->where('source', $row->source)
-                    ->whereHas('application')
-                    ->count();
+                $withApp = 0;
+                try {
+                    if (Schema::hasColumn('applications', 'lead_id')) {
+                        $withApp = Lead::query()
+                            ->where('source', $row->source)
+                            ->whereHas('application')
+                            ->count();
+                    }
+                } catch (\Throwable) {
+                    $withApp = 0;
+                }
 
                 return [
                     'source' => $source,
@@ -89,10 +97,18 @@ class CrmLeadReport extends Page
 
     public function getDueCount(): int
     {
-        return Lead::query()
-            ->whereNotIn('status', [LeadStatus::Success->value, LeadStatus::Lost->value])
-            ->whereNotNull('next_follow_up_at')
-            ->where('next_follow_up_at', '<=', now()->endOfDay())
-            ->count();
+        try {
+            if (! Schema::hasColumn('leads', 'next_follow_up_at')) {
+                return 0;
+            }
+
+            return Lead::query()
+                ->whereNotIn('status', [LeadStatus::Success->value, LeadStatus::Lost->value])
+                ->whereNotNull('next_follow_up_at')
+                ->where('next_follow_up_at', '<=', now()->endOfDay())
+                ->count();
+        } catch (\Throwable) {
+            return 0;
+        }
     }
 }

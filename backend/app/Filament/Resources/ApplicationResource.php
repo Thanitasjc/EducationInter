@@ -16,6 +16,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Schema;
 
 class ApplicationResource extends Resource
 {
@@ -40,6 +41,15 @@ class ApplicationResource extends Resource
         return static::scopeAssignedQuery(parent::getEloquentQuery(), 'consultant_id');
     }
 
+    protected static function hasLeadColumn(): bool
+    {
+        try {
+            return Schema::hasColumn('applications', 'lead_id');
+        } catch (\Throwable) {
+            return false;
+        }
+    }
+
     protected static function consultantOptions(): array
     {
         return User::query()
@@ -58,6 +68,7 @@ class ApplicationResource extends Resource
                 ->content(fn (?Application $record): string => $record?->student?->user?->name ?? '-'),
             Forms\Components\Placeholder::make('lead_name')
                 ->label('Lead')
+                ->visible(fn (): bool => static::hasLeadColumn())
                 ->content(fn (?Application $record): string => $record?->lead
                     ? $record->lead->name.' (#'.$record->lead->id.')'
                     : '-'),
@@ -92,7 +103,10 @@ class ApplicationResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('application_no')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('student.user.name')->label('Student'),
-                Tables\Columns\TextColumn::make('lead.name')->label('Lead')->toggleable(),
+                Tables\Columns\TextColumn::make('lead.name')
+                    ->label('Lead')
+                    ->toggleable()
+                    ->visible(fn (): bool => static::hasLeadColumn()),
                 Tables\Columns\TextColumn::make('university.name_en')->label('University'),
                 Tables\Columns\TextColumn::make('status')->badge()
                     ->color(fn (ApplicationStatus|string $state): string => match ($state instanceof ApplicationStatus ? $state->value : $state) {
