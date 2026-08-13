@@ -73,9 +73,8 @@ export function ApplyWizard({ countries, universities, courses }: Props) {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
-  async function onSubmit(e: FormEvent) {
-    e.preventDefault();
-    if (step < 6) return;
+  async function submit() {
+    if (step < 6 || status === "loading") return;
 
     setStatus("loading");
     try {
@@ -103,6 +102,11 @@ export function ApplyWizard({ countries, universities, courses }: Props) {
     } catch {
       setStatus("error");
     }
+  }
+
+  function onSubmit(e: FormEvent) {
+    // Prevent implicit form submit (e.g. Enter). Only the Submit button may send.
+    e.preventDefault();
   }
 
   if (status === "success" && resultNo) {
@@ -284,6 +288,7 @@ export function ApplyWizard({ countries, universities, courses }: Props) {
           </button>
           {step < 6 ? (
             <button
+              key="next"
               type="button"
               onClick={() => setStep((s) => Math.min(6, s + 1))}
               className="btn-primary"
@@ -291,7 +296,13 @@ export function ApplyWizard({ countries, universities, courses }: Props) {
               {t("next")}
             </button>
           ) : (
-            <button type="submit" className="btn-primary" disabled={status === "loading"}>
+            <button
+              key="submit"
+              type="button"
+              className="btn-primary"
+              disabled={status === "loading"}
+              onClick={() => void submit()}
+            >
               {status === "loading" ? t("submitting") : t("submit")}
             </button>
           )}
