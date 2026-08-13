@@ -30,6 +30,7 @@ class Lead extends Model
         'message',
         'notes',
         'last_contact_at',
+        'next_follow_up_at',
     ];
 
     protected function casts(): array
@@ -37,6 +38,7 @@ class Lead extends Model
         return [
             'status' => LeadStatus::class,
             'last_contact_at' => 'datetime',
+            'next_follow_up_at' => 'datetime',
         ];
     }
 

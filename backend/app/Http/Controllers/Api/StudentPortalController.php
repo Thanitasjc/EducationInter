@@ -76,10 +76,23 @@ class StudentPortalController extends Controller
     public function documents(Request $request): JsonResponse
     {
         $student = $this->studentOrFail($request);
+        $types = DocumentType::query()->orderByDesc('is_required')->orderBy('name_en')->get();
+        $docs = $student->documents()->with('type')->latest()->get();
+
+        $checklist = $types->map(function (DocumentType $type) use ($docs) {
+            $match = $docs->firstWhere('document_type_id', $type->id);
+
+            return [
+                'type' => $type,
+                'document' => $match,
+                'status' => $match?->status ?? 'missing',
+            ];
+        });
 
         return response()->json([
-            'data' => $student->documents()->with('type')->latest()->get(),
-            'types' => DocumentType::query()->orderBy('name_en')->get(),
+            'data' => $docs,
+            'types' => $types,
+            'checklist' => $checklist,
         ]);
     }
 
@@ -123,6 +136,7 @@ class StudentPortalController extends Controller
         $student = $this->studentOrFail($request);
 
         $appointments = Appointment::query()
+            ->with('consultant:id,name')
             ->where('student_id', $student->id)
             ->orderByDesc('starts_at')
             ->get();

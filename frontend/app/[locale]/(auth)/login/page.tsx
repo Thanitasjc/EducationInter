@@ -34,6 +34,11 @@ export default function LoginPage() {
         <h1 className="text-2xl font-bold">{t("loginTitle")}</h1>
         <input name="email" type="email" required placeholder={t("email")} className="input" />
         <input name="password" type="password" required placeholder={t("password")} className="input" />
+        <p className="text-right text-sm">
+          <Link href="/forgot-password" className="font-semibold text-win-purple">
+            {t("forgotTitle")}
+          </Link>
+        </p>
         <button className="btn-primary w-full" disabled={loading}>
           {loading ? "..." : t("login")}
         </button>

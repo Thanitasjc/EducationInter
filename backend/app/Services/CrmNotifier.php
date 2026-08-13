@@ -83,6 +83,25 @@ class CrmNotifier
         );
     }
 
+    /**
+     * @param  \Illuminate\Support\Collection<int, Lead>  $leads
+     */
+    public function followUpsDue($leads): void
+    {
+        $count = $leads->count();
+        if ($count === 0) {
+            return;
+        }
+
+        $sample = $leads->take(5)->map(fn (Lead $lead) => $lead->name)->implode(', ');
+
+        $this->notifyStaff(
+            title: "{$count} lead follow-up(s) due",
+            body: $sample.($count > 5 ? '…' : ''),
+            url: \App\Filament\Resources\LeadResource::getUrl('index'),
+        );
+    }
+
     public function appointmentBooked(Appointment $appointment): void
     {
         $when = $appointment->starts_at?->format('Y-m-d H:i') ?? '';

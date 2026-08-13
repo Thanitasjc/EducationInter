@@ -14,10 +14,20 @@ class StatsOverview extends BaseWidget
 {
     protected function getStats(): array
     {
+        $dueFollowUps = Lead::query()
+            ->whereNotIn('status', ['success', 'lost'])
+            ->whereNotNull('next_follow_up_at')
+            ->where('next_follow_up_at', '<=', now()->endOfDay())
+            ->count();
+
         return [
             Stat::make('ลีด', Lead::query()->count())
                 ->description('ลีดทั้งหมด')
                 ->color('primary')
+                ->url(\App\Filament\Resources\LeadResource::getUrl()),
+            Stat::make('ติดตามวันนี้', $dueFollowUps)
+                ->description('Due / overdue follow-ups')
+                ->color($dueFollowUps > 0 ? 'danger' : 'gray')
                 ->url(\App\Filament\Resources\LeadResource::getUrl()),
             Stat::make('ใบสมัคร', Application::query()->count())
                 ->description('ท่อการรับสมัคร')

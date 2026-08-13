@@ -247,6 +247,7 @@ export async function submitApplication(payload: Record<string, unknown> | FormD
     message: string;
     data: { application_no: string; status: string; next_action?: string };
     lead_id: number;
+    claim?: { email: string; token: string | null };
   }>("/applications", {
     method: "POST",
     body: isFormData ? payload : JSON.stringify(payload),
@@ -278,6 +279,32 @@ export async function register(payload: Record<string, unknown>) {
   });
 }
 
+export async function forgotPassword(email: string) {
+  return apiFetch<{ message: string }>("/auth/forgot-password", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+    next: { revalidate: 0 },
+    cache: "no-store",
+  });
+}
+
+export async function resetPassword(payload: {
+  email: string;
+  token: string;
+  password: string;
+  password_confirmation: string;
+}) {
+  return apiFetch<{ message: string; token: string; user: Record<string, unknown> }>(
+    "/auth/reset-password",
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
+      next: { revalidate: 0 },
+      cache: "no-store",
+    },
+  );
+}
+
 export async function getStudentDashboard() {
   if (!getToken()) throw new Error("Unauthorized");
   return apiFetch<Record<string, unknown>>("/student/dashboard", {
@@ -297,6 +324,11 @@ export async function getStudentDocuments() {
   return apiFetch<{
     data: Array<Record<string, unknown>>;
     types: Array<Record<string, unknown>>;
+    checklist?: Array<{
+      type: Record<string, unknown>;
+      document: Record<string, unknown> | null;
+      status: string;
+    }>;
   }>("/student/documents", {
     auth: true,
     next: { revalidate: 0 },

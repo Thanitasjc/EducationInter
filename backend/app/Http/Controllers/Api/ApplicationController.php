@@ -19,6 +19,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 
 class ApplicationController extends Controller
@@ -173,6 +174,7 @@ class ApplicationController extends Controller
             return [
                 'application' => $application->load(['country', 'university', 'course', 'documents', 'lead']),
                 'lead' => $lead,
+                'user' => $user,
             ];
         });
 
@@ -182,10 +184,21 @@ class ApplicationController extends Controller
             // Apply must succeed even if staff/student notifications fail.
         }
 
+        $claimToken = null;
+        try {
+            $claimToken = Password::broker()->createToken($result['user']);
+        } catch (\Throwable) {
+            // Claim link is optional if token table unavailable.
+        }
+
         return response()->json([
             'message' => 'Application submitted successfully',
             'data' => $result['application'],
             'lead_id' => $result['lead']->id,
+            'claim' => [
+                'email' => $result['user']->email,
+                'token' => $claimToken,
+            ],
         ], 201);
     }
 }

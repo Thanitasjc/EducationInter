@@ -50,6 +50,7 @@ export function ApplyWizard({ countries, universities, courses }: Props) {
   const [form, setForm] = useState<FormState>(initial);
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [resultNo, setResultNo] = useState<string | null>(null);
+  const [claim, setClaim] = useState<{ email: string; token: string } | null>(null);
   const [docTypes, setDocTypes] = useState<DocumentTypeOption[]>([]);
   const [docFiles, setDocFiles] = useState<Record<string, File | null>>({});
   const [extraFile, setExtraFile] = useState<File | null>(null);
@@ -120,6 +121,11 @@ export function ApplyWizard({ countries, universities, courses }: Props) {
 
       const res = await submitApplication(fd);
       setResultNo(res.data.application_no);
+      if (res.claim?.email && res.claim?.token) {
+        setClaim({ email: res.claim.email, token: res.claim.token });
+      } else {
+        setClaim(null);
+      }
       setStatus("success");
     } catch {
       setStatus("error");
@@ -132,6 +138,10 @@ export function ApplyWizard({ countries, universities, courses }: Props) {
   }
 
   if (status === "success" && resultNo) {
+    const claimHref = claim
+      ? `/reset-password?email=${encodeURIComponent(claim.email)}&token=${encodeURIComponent(claim.token)}`
+      : "/forgot-password";
+
     return (
       <div className="card-soft mx-auto max-w-2xl space-y-4 text-center">
         <h1 className="text-2xl font-bold text-win-ink">{t("successTitle")}</h1>
@@ -139,8 +149,15 @@ export function ApplyWizard({ countries, universities, courses }: Props) {
         <p className="text-lg font-semibold text-win-purple">
           {t("applicationNo")}: {resultNo}
         </p>
-        <div className="flex justify-center gap-3">
-          <Link href="/student/dashboard" className="btn-primary">
+        <p className="text-sm text-win-muted">{t("claimHint")}</p>
+        <div className="flex flex-wrap justify-center gap-3">
+          <Link href={claimHref} className="btn-primary">
+            {t("setPassword")}
+          </Link>
+          <Link
+            href="/student/dashboard"
+            className="rounded-xl border border-black/10 px-5 py-3 text-sm font-semibold"
+          >
             {t("goDashboard")}
           </Link>
           <Link href="/" className="rounded-xl border border-black/10 px-5 py-3 text-sm font-semibold">

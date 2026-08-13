@@ -66,3 +66,43 @@ services:
         value: "true"
       - key: SANCTUM_STATEFUL_DOMAINS
         sync: false
+      - key: MAIL_MAILER
+        sync: false
+      - key: MAIL_HOST
+        sync: false
+      - key: MAIL_PORT
+        sync: false
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: MAIL_FROM_ADDRESS
+        sync: false
+      - key: MAIL_FROM_NAME
+        value: Education Interntions
+
+  # Daily CRM follow-up alerts (requires paid cron on some plans; also runnable from Admin → รายงานลีด)
+  - type: cron
+    name: education-inter-crm-followups
+    runtime: docker
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: singapore
+    schedule: "0 1 * * *"
+    dockerCommand: php artisan crm:notify-follow-ups
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_KEY
+        sync: false
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_URL
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: DB_SSLMODE
+        value: require
+      - key: LOG_CHANNEL
+        value: stderr

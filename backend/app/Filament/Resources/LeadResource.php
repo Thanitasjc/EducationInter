@@ -86,7 +86,10 @@ class LeadResource extends Resource
                 ->searchable(),
             Forms\Components\Textarea::make('message')->columnSpanFull(),
             Forms\Components\Textarea::make('notes')->columnSpanFull(),
-            Forms\Components\DateTimePicker::make('last_contact_at')->disabled(),
+            Forms\Components\DateTimePicker::make('last_contact_at')->disabled()->seconds(false),
+            Forms\Components\DateTimePicker::make('next_follow_up_at')
+                ->label('Next follow-up')
+                ->seconds(false),
         ]);
     }
 
@@ -108,6 +111,11 @@ class LeadResource extends Resource
                         default => 'gray',
                     }),
                 Tables\Columns\TextColumn::make('assignee.name')->label('Consultant'),
+                Tables\Columns\TextColumn::make('next_follow_up_at')
+                    ->label('Follow-up')
+                    ->dateTime()
+                    ->sortable()
+                    ->color(fn ($state) => $state && $state <= now() ? 'danger' : null),
                 Tables\Columns\TextColumn::make('created_at')->dateTime()->sortable(),
             ])
             ->defaultSort('created_at', 'desc')
@@ -126,6 +134,23 @@ class LeadResource extends Resource
                 Tables\Filters\SelectFilter::make('assigned_to')
                     ->relationship('assignee', 'name')
                     ->label('Consultant'),
+                Tables\Filters\SelectFilter::make('follow_up')
+                    ->label('Follow-up')
+                    ->options([
+                        'due' => 'Due / overdue',
+                        'upcoming' => 'Upcoming (7 days)',
+                        'unset' => 'No follow-up set',
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return match ($data['value'] ?? null) {
+                            'due' => $query->whereNotNull('next_follow_up_at')
+                                ->where('next_follow_up_at', '<=', now()->endOfDay()),
+                            'upcoming' => $query->whereNotNull('next_follow_up_at')
+                                ->whereBetween('next_follow_up_at', [now(), now()->addDays(7)]),
+                            'unset' => $query->whereNull('next_follow_up_at'),
+                            default => $query,
+                        };
+                    }),
             ])
             ->actions([
                 Tables\Actions\Action::make('convert')
@@ -200,6 +225,10 @@ class LeadResource extends Resource
                                 fn (LeadStatus $status) => [$status->value => strtoupper($status->value)]
                             ))
                             ->required(),
+                        Forms\Components\DateTimePicker::make('next_follow_up_at')
+                            ->label('Next follow-up')
+                            ->seconds(false)
+                            ->default(now()->addDays(3)),
                         Forms\Components\Textarea::make('note')->rows(2),
                     ])
                     ->action(function (Lead $record, array $data, LeadPipelineService $pipeline): void {
@@ -208,6 +237,7 @@ class LeadResource extends Resource
                             $data['status'],
                             auth()->user(),
                             $data['note'] ?? null,
+                            $data['next_follow_up_at'] ?? null,
                         );
 
                         Notification::make()->title('Lead status updated')->success()->send();

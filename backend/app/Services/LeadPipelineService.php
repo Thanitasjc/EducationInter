@@ -22,29 +22,44 @@ class LeadPipelineService
         protected CrmNotifier $crmNotifier,
     ) {}
 
-    public function changeStatus(Lead $lead, LeadStatus|string $status, ?User $actor = null, ?string $note = null): Lead
-    {
+    public function changeStatus(
+        Lead $lead,
+        LeadStatus|string $status,
+        ?User $actor = null,
+        ?string $note = null,
+        mixed $nextFollowUpAt = null,
+    ): Lead {
         $to = $status instanceof LeadStatus ? $status : LeadStatus::from($status);
         $from = $lead->status instanceof LeadStatus ? $lead->status->value : (string) $lead->status;
 
-        if ($from === $to->value) {
-            return $lead;
-        }
+        return DB::transaction(function () use ($lead, $from, $to, $actor, $note, $nextFollowUpAt) {
+            $payload = ['last_contact_at' => now()];
+            if ($from !== $to->value) {
+                $payload['status'] = $to;
+            }
+            if ($nextFollowUpAt !== null) {
+                $payload['next_follow_up_at'] = $nextFollowUpAt ?: null;
+            }
 
-        return DB::transaction(function () use ($lead, $from, $to, $actor, $note) {
-            $lead->forceFill([
-                'status' => $to,
-                'last_contact_at' => now(),
-            ])->save();
+            $lead->forceFill($payload)->save();
 
-            LeadActivity::query()->create([
-                'lead_id' => $lead->id,
-                'user_id' => $actor?->id,
-                'type' => 'status_change',
-                'from_status' => $from,
-                'to_status' => $to->value,
-                'body' => $note ?: "Status changed to {$to->value}",
-            ]);
+            if ($from !== $to->value) {
+                LeadActivity::query()->create([
+                    'lead_id' => $lead->id,
+                    'user_id' => $actor?->id,
+                    'type' => 'status_change',
+                    'from_status' => $from,
+                    'to_status' => $to->value,
+                    'body' => $note ?: "Status changed to {$to->value}",
+                ]);
+            } elseif ($note) {
+                LeadActivity::query()->create([
+                    'lead_id' => $lead->id,
+                    'user_id' => $actor?->id,
+                    'type' => 'note',
+                    'body' => $note,
+                ]);
+            }
 
             return $lead->fresh();
         });
@@ -203,11 +218,15 @@ class LeadPipelineService
                 $lead->forceFill(['assigned_to' => $consultantId])->save();
             }
 
+            $followUp = $appointment->starts_at;
             $current = $lead->status instanceof LeadStatus ? $lead->status->value : (string) $lead->status;
             if (in_array($current, ['new', 'contacted'], true)) {
-                $this->changeStatus($lead, LeadStatus::Consultation, $actor, 'Appointment scheduled');
+                $this->changeStatus($lead, LeadStatus::Consultation, $actor, 'Appointment scheduled', $followUp);
             } else {
-                $lead->forceFill(['last_contact_at' => now()])->save();
+                $lead->forceFill([
+                    'last_contact_at' => now(),
+                    'next_follow_up_at' => $followUp,
+                ])->save();
                 LeadActivity::query()->create([
                     'lead_id' => $lead->id,
                     'user_id' => $actor?->id,

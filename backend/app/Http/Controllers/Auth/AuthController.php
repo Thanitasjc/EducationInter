@@ -5,9 +5,13 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\Student;
 use App\Models\User;
+use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -71,6 +75,78 @@ class AuthController extends Controller
         $token = $user->createToken('student')->plainTextToken;
 
         return response()->json([
+            'token' => $token,
+            'user' => $user->load('roles'),
+        ]);
+    }
+
+    public function forgotPassword(Request $request): JsonResponse
+    {
+        $request->validate([
+            'email' => ['required', 'email'],
+        ]);
+
+        try {
+            Password::broker()->sendResetLink($request->only('email'));
+        } catch (\Throwable $e) {
+            Log::warning('Password reset email failed', [
+                'email' => $request->input('email'),
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        // Always generic — do not reveal whether the email exists.
+        return response()->json([
+            'message' => 'If that email exists, a reset link has been sent.',
+        ]);
+    }
+
+    public function resetPassword(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'email' => ['required', 'email'],
+            'token' => ['required', 'string'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        $status = Password::broker()->reset(
+            [
+                'email' => $data['email'],
+                'password' => $data['password'],
+                'password_confirmation' => $request->input('password_confirmation'),
+                'token' => $data['token'],
+            ],
+            function (User $user, string $password) {
+                $user->forceFill([
+                    'password' => $password,
+                    'remember_token' => Str::random(60),
+                    'last_login_at' => now(),
+                    'is_active' => true,
+                ])->save();
+
+                event(new PasswordReset($user));
+            }
+        );
+
+        if ($status !== Password::PASSWORD_RESET) {
+            throw ValidationException::withMessages([
+                'email' => [__($status)],
+            ]);
+        }
+
+        $user = User::query()->where('email', $data['email'])->firstOrFail();
+        if (! $user->hasRole('student')) {
+            $user->assignRole('student');
+        }
+        Student::query()->firstOrCreate(
+            ['user_id' => $user->id],
+            ['preferred_locale' => $user->locale ?? 'th']
+        );
+
+        $token = $user->createToken('student')->plainTextToken;
+
+        return response()->json([
+            'message' => 'Password updated',
             'token' => $token,
             'user' => $user->load('roles'),
         ]);
