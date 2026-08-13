@@ -174,7 +174,20 @@ class LeadResource extends Resource
                     ->label('Convert')
                     ->icon('heroicon-o-document-plus')
                     ->color('success')
-                    ->visible(fn (Lead $record): bool => filled($record->email) && ! $record->application()->exists())
+                    ->visible(function (Lead $record): bool {
+                        if (! filled($record->email)) {
+                            return false;
+                        }
+                        try {
+                            if (! Schema::hasColumn('applications', 'lead_id')) {
+                                return true;
+                            }
+
+                            return ! $record->application()->exists();
+                        } catch (\Throwable) {
+                            return true;
+                        }
+                    })
                     ->requiresConfirmation()
                     ->modalHeading('Convert lead to application')
                     ->modalDescription('สร้างใบสมัครจากลีดนี้ และแจ้งนักเรียนในพอร์ทัล')

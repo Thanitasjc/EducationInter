@@ -26,7 +26,20 @@ class EditLead extends EditRecord
                 ->label('Convert to application')
                 ->icon('heroicon-o-document-plus')
                 ->color('success')
-                ->visible(fn (): bool => filled($this->record->email) && ! $this->record->application()->exists())
+                ->visible(function (): bool {
+                    if (! filled($this->record->email)) {
+                        return false;
+                    }
+                    try {
+                        if (! \Illuminate\Support\Facades\Schema::hasColumn('applications', 'lead_id')) {
+                            return true;
+                        }
+
+                        return ! $this->record->application()->exists();
+                    } catch (\Throwable) {
+                        return true;
+                    }
+                })
                 ->requiresConfirmation()
                 ->action(function (LeadPipelineService $pipeline) {
                     try {
@@ -94,7 +107,14 @@ class EditLead extends EditRecord
                 ->url(fn (): ?string => $this->record->application
                     ? ApplicationResource::getUrl('edit', ['record' => $this->record->application])
                     : null)
-                ->visible(fn (): bool => (bool) $this->record->application),
+                ->visible(function (): bool {
+                    try {
+                        return \Illuminate\Support\Facades\Schema::hasColumn('applications', 'lead_id')
+                            && (bool) $this->record->application;
+                    } catch (\Throwable) {
+                        return false;
+                    }
+                }),
             Actions\DeleteAction::make(),
         ];
     }

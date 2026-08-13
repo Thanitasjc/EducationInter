@@ -27,22 +27,27 @@ class ApplicationPipelineBoard extends Page
 
     protected static ?int $navigationSort = 0;
 
-    /** @var list<ApplicationStatus> */
-    public array $columnStatuses = [
-        ApplicationStatus::Consultation,
-        ApplicationStatus::DocumentRequired,
-        ApplicationStatus::ReadyToApply,
-        ApplicationStatus::Submitted,
-        ApplicationStatus::ConditionalOffer,
-        ApplicationStatus::UnconditionalOffer,
-        ApplicationStatus::Visa,
-    ];
+    /** @return list<ApplicationStatus> */
+    protected function columnStatuses(): array
+    {
+        return [
+            ApplicationStatus::Consultation,
+            ApplicationStatus::DocumentRequired,
+            ApplicationStatus::ReadyToApply,
+            ApplicationStatus::Submitted,
+            ApplicationStatus::ConditionalOffer,
+            ApplicationStatus::UnconditionalOffer,
+            ApplicationStatus::Visa,
+        ];
+    }
 
     public function getColumns(): Collection
     {
+        $statuses = $this->columnStatuses();
+
         $query = Application::query()
             ->with(['student.user:id,name', 'consultant:id,name'])
-            ->whereIn('status', array_map(fn (ApplicationStatus $s) => $s->value, $this->columnStatuses))
+            ->whereIn('status', array_map(fn (ApplicationStatus $s) => $s->value, $statuses))
             ->latest('updated_at');
 
         if (static::shouldScopeToConsultant()) {
@@ -55,7 +60,7 @@ class ApplicationPipelineBoard extends Page
                 : (string) $app->status
         );
 
-        return collect($this->columnStatuses)->mapWithKeys(
+        return collect($statuses)->mapWithKeys(
             fn (ApplicationStatus $status) => [
                 $status->value => $apps->get($status->value, collect()),
             ]
@@ -84,7 +89,7 @@ class ApplicationPipelineBoard extends Page
 
     public function nextStatus(string $current): ?string
     {
-        $values = array_map(fn (ApplicationStatus $s) => $s->value, $this->columnStatuses);
+        $values = array_map(fn (ApplicationStatus $s) => $s->value, $this->columnStatuses());
         $index = array_search($current, $values, true);
 
         if ($index === false || $index >= count($values) - 1) {

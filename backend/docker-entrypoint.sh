@@ -13,9 +13,11 @@ php artisan migrate --force || echo "migrate failed" >&2
 # Insert-only CRM demo rows (firstOrCreate). Never truncates or overwrites existing data.
 php artisan db:seed --class=SafeDemoCrmSeeder --force || true
 php artisan storage:link || true
+# Avoid stale compiled Filament/Livewire views after schema changes.
+php artisan view:clear || true
 php artisan config:cache || true
-php artisan route:cache || true
-php artisan view:cache || true
+# route:cache can break Filament Livewire discovery on some deploys — skip it.
+php artisan route:clear || true
 
 if [ "$#" -eq 0 ]; then
   set -- php artisan serve --host=0.0.0.0 --port="$PORT"

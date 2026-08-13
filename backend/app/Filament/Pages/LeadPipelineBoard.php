@@ -11,6 +11,7 @@ use App\Services\LeadPipelineService;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Schema;
 
 class LeadPipelineBoard extends Page
 {
@@ -28,21 +29,33 @@ class LeadPipelineBoard extends Page
 
     protected static ?int $navigationSort = 0;
 
-    /** @var list<LeadStatus> */
-    public array $columnStatuses = [
-        LeadStatus::New,
-        LeadStatus::Contacted,
-        LeadStatus::Consultation,
-        LeadStatus::Interested,
-        LeadStatus::Document,
-        LeadStatus::Application,
-    ];
+    /** @return list<LeadStatus> */
+    protected function columnStatuses(): array
+    {
+        return [
+            LeadStatus::New,
+            LeadStatus::Contacted,
+            LeadStatus::Consultation,
+            LeadStatus::Interested,
+            LeadStatus::Document,
+            LeadStatus::Application,
+        ];
+    }
 
     public function getColumns(): Collection
     {
+        $statuses = $this->columnStatuses();
+        $with = ['assignee:id,name'];
+        try {
+            if (Schema::hasColumn('applications', 'lead_id')) {
+                $with[] = 'application:id,lead_id,application_no';
+            }
+        } catch (\Throwable) {
+        }
+
         $query = Lead::query()
-            ->with(['assignee:id,name', 'application:id,lead_id,application_no'])
-            ->whereIn('status', array_map(fn (LeadStatus $s) => $s->value, $this->columnStatuses))
+            ->with($with)
+            ->whereIn('status', array_map(fn (LeadStatus $s) => $s->value, $statuses))
             ->latest('updated_at');
 
         if (static::shouldScopeToConsultant()) {
@@ -55,7 +68,7 @@ class LeadPipelineBoard extends Page
                 : (string) $lead->status
         );
 
-        return collect($this->columnStatuses)->mapWithKeys(
+        return collect($statuses)->mapWithKeys(
             fn (LeadStatus $status) => [
                 $status->value => $leads->get($status->value, collect()),
             ]
@@ -115,7 +128,7 @@ class LeadPipelineBoard extends Page
 
     public function nextStatus(string $current): ?string
     {
-        $values = array_map(fn (LeadStatus $s) => $s->value, $this->columnStatuses);
+        $values = array_map(fn (LeadStatus $s) => $s->value, $this->columnStatuses());
         $index = array_search($current, $values, true);
 
         if ($index === false || $index >= count($values) - 1) {
@@ -123,5 +136,22 @@ class LeadPipelineBoard extends Page
         }
 
         return $values[$index + 1];
+    }
+
+    public function canConvert(Lead $lead): bool
+    {
+        if (! filled($lead->email)) {
+            return false;
+        }
+
+        try {
+            if (! Schema::hasColumn('applications', 'lead_id')) {
+                return true;
+            }
+
+            return ! $lead->application()->exists();
+        } catch (\Throwable) {
+            return true;
+        }
     }
 }

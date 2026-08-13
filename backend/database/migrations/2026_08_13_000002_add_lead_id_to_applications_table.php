@@ -9,17 +9,34 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('applications', function (Blueprint $table) {
-            $table->foreignId('lead_id')
-                ->nullable()
-                ->after('student_id')
-                ->constrained()
-                ->nullOnDelete();
-            $table->unique('lead_id');
-        });
+        if (! Schema::hasColumn('applications', 'lead_id')) {
+            Schema::table('applications', function (Blueprint $table) {
+                $table->foreignId('lead_id')
+                    ->nullable()
+                    ->after('student_id')
+                    ->constrained()
+                    ->nullOnDelete();
+            });
+        }
 
-        $apps = DB::table('applications')->select('id', 'application_no', 'personal_data')->get();
+        try {
+            Schema::table('applications', function (Blueprint $table) {
+                $table->unique('lead_id');
+            });
+        } catch (\Throwable) {
+            // Unique index may already exist.
+        }
+
+        if (! Schema::hasColumn('applications', 'lead_id')) {
+            return;
+        }
+
+        $apps = DB::table('applications')->select('id', 'application_no', 'personal_data', 'lead_id')->get();
         foreach ($apps as $app) {
+            if (! empty($app->lead_id)) {
+                continue;
+            }
+
             $leadId = null;
             $personal = json_decode($app->personal_data ?? 'null', true);
             if (is_array($personal) && ! empty($personal['from_lead_id'])) {
@@ -43,9 +60,20 @@ return new class extends Migration
 
     public function down(): void
     {
+        if (! Schema::hasColumn('applications', 'lead_id')) {
+            return;
+        }
+
         Schema::table('applications', function (Blueprint $table) {
-            $table->dropUnique(['lead_id']);
-            $table->dropConstrainedForeignId('lead_id');
+            try {
+                $table->dropUnique(['lead_id']);
+            } catch (\Throwable) {
+            }
+            try {
+                $table->dropConstrainedForeignId('lead_id');
+            } catch (\Throwable) {
+                $table->dropColumn('lead_id');
+            }
         });
     }
 };

@@ -13,7 +13,7 @@ services:
     region: singapore
     healthCheckPath: /api/home
     # SafeDemoCrmSeeder is insert-only (firstOrCreate) — never wipes/overwrites production rows.
-    dockerCommand: php artisan migrate --force && (php artisan db:seed --class=SafeDemoCrmSeeder --force || true) && php artisan config:cache && php artisan route:cache && php artisan view:cache && php artisan serve --host=0.0.0.0 --port=$PORT
+    dockerCommand: php artisan migrate --force && (php artisan db:seed --class=SafeDemoCrmSeeder --force || true) && php artisan view:clear && php artisan config:cache && php artisan route:clear && php artisan serve --host=0.0.0.0 --port=$PORT
     envVars:
       - key: APP_NAME
         value: Education Interntions

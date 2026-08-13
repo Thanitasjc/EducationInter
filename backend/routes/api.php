@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\ApplicationController;
 use App\Http\Controllers\Api\CountryController;
 use App\Http\Controllers\Api\CourseController;
+use App\Http\Controllers\Api\DiagController;
 use App\Http\Controllers\Api\DocumentTypeController;
 use App\Http\Controllers\Api\EventController;
 use App\Http\Controllers\Api\HomeController;
@@ -21,6 +22,7 @@ use App\Http\Controllers\Auth\SocialAuthController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/home', HomeController::class);
+Route::get('/diag/admin-schema', [DiagController::class, 'adminSchema']);
 Route::get('/sitemap', SitemapController::class);
 Route::get('/pages/{key}', [PageContentController::class, 'show']);
 

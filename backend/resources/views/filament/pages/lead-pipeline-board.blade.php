@@ -28,7 +28,7 @@
                                         → {{ $next }}
                                     </x-filament::button>
                                 @endif
-                                @if (filled($lead->email) && ! $lead->application)
+                                @if ($this->canConvert($lead))
                                     <x-filament::button
                                         size="xs"
                                         color="success"
