@@ -295,7 +295,11 @@ Repo: https://github.com/Thanitasjc/EducationInter
 8. (ทางเลือก) seed ข้อมูลครั้งแรกผ่าน Render Shell:
 
 ```bash
+# ครั้งแรกทั้งระบบ (ระวัง: updateOrCreate ทับแถวที่ key ตรง demo)
 php artisan db:seed --force
+
+# หรือเพิ่มแค่ CRM demo แบบปลอดภัย (ไม่ลบ / ไม่ทับข้อมูลจริง)
+php artisan db:seed --class=SafeCrmDemoSeeder --force
 ```
 
 **Free tier:** service จะ sleep ตอนไม่มีคนใช้ — คำขอแรกอาจช้า ~50 วินาที
