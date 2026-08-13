@@ -12,7 +12,10 @@ class ScholarshipController extends Controller
     public function index(Request $request): JsonResponse
     {
         $query = Scholarship::query()
-            ->with(['university:id,slug,name_th,name_en', 'country:id,slug,name_th,name_en'])
+            ->with([
+                'university:id,slug,name_th,name_en,cover_path,logo_path',
+                'country:id,slug,name_th,name_en',
+            ])
             ->where('is_active', true);
 
         if ($request->filled('country')) {

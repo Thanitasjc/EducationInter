@@ -58,6 +58,22 @@ const FALLBACK_COVERS: Record<string, string> = {
     "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=1200&q=80",
   "student-visa-checklist":
     "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1200&q=80",
+  "manchester-undergraduate-scholarship":
+    "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=1200&q=80",
+  "manchester-masters-scholarship":
+    "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=1200&q=80",
+  "ucl-global-undergraduate":
+    "https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=1200&q=80",
+  "ucl-global-masters":
+    "https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=1200&q=80",
+  "melbourne-international-undergraduate":
+    "https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&w=1200&q=80",
+  "melbourne-international-masters":
+    "https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&w=1200&q=80",
+  "toronto-undergraduate-scholarship":
+    "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1200&q=80",
+  "toronto-masters-scholarship":
+    "https://images.unsplash.com/photo-1517935706615-2717063c0395?auto=format&fit=crop&w=1200&q=80",
   "uk-education-fair-bkk":
     "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80",
   "scholarship-workshop":

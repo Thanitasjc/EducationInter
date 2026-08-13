@@ -45,6 +45,7 @@ class AdminPanelProvider extends PanelProvider
                 \App\Filament\Widgets\StatsOverview::class,
                 Widgets\AccountWidget::class,
             ])
+            ->databaseNotifications()
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

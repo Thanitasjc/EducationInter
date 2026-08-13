@@ -41,10 +41,11 @@ class PostResource extends Resource
             Forms\Components\Textarea::make('content_th')->rows(6)->columnSpanFull(),
             Forms\Components\Textarea::make('content_en')->rows(6)->columnSpanFull(),
             MediaUpload::make('cover_path')
-                ->label('รูปปก')
+                ->label('รูปปก (แสดงหน้า /blog และหน้ารายละเอียด)')
                 ->image()
                 ->directory('covers/posts')
-                        ->imageEditor()
+                ->imageEditor()
+                ->helperText('อัปโหลดรูปปกแต่ละบทความ — ใช้บนรายการบล็อกและหน้าอ่านบทความ')
                 ->columnSpanFull(),
             Forms\Components\DateTimePicker::make('published_at'),
             Forms\Components\Toggle::make('is_active')->default(true),

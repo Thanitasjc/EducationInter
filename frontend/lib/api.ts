@@ -226,15 +226,34 @@ export async function createLead(payload: Record<string, unknown>) {
   });
 }
 
-export async function submitApplication(payload: Record<string, unknown>) {
+export type DocumentTypeOption = {
+  id: number;
+  slug: string;
+  name_th: string;
+  name_en: string;
+  is_required: boolean;
+};
+
+export async function getDocumentTypes() {
+  return apiFetch<{ data: DocumentTypeOption[] }>("/document-types", {
+    next: { revalidate: 300 },
+  });
+}
+
+export async function submitApplication(payload: Record<string, unknown> | FormData) {
+  const isFormData = typeof FormData !== "undefined" && payload instanceof FormData;
+
   return apiFetch<{
     message: string;
     data: { application_no: string; status: string; next_action?: string };
     lead_id: number;
   }>("/applications", {
     method: "POST",
-    body: JSON.stringify(payload),
+    body: isFormData ? payload : JSON.stringify(payload),
+    formData: isFormData,
     next: { revalidate: 0 },
+    cache: "no-store",
+    signal: AbortSignal.timeout(Number(process.env.API_UPLOAD_TIMEOUT_MS ?? 60_000)),
   });
 }
 
@@ -319,6 +338,7 @@ export type BlogPost = {
   excerpt_en?: string | null;
   content_th?: string | null;
   content_en?: string | null;
+  cover_path?: string | null;
   published_at?: string | null;
   category?: { id: number; slug: string; name_th: string; name_en: string } | null;
 };

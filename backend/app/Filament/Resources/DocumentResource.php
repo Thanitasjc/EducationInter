@@ -194,6 +194,14 @@ class DocumentResource extends Resource
             );
         }
 
+        if ($record->application_id) {
+            $application = $record->application()->with('documents')->first();
+            if ($application) {
+                app(\App\Services\ApplicationPipelineService::class)
+                    ->syncFromDocumentChecklist($application, auth()->user());
+            }
+        }
+
         Notification::make()
             ->title('Document '.$status)
             ->success()

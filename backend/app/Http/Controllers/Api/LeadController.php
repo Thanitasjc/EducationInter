@@ -6,12 +6,13 @@ use App\Enums\LeadStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Lead;
 use App\Models\LeadActivity;
+use App\Services\CrmNotifier;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class LeadController extends Controller
 {
-    public function store(Request $request): JsonResponse
+    public function store(Request $request, CrmNotifier $crmNotifier): JsonResponse
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -42,6 +43,8 @@ class LeadController extends Controller
             'to_status' => LeadStatus::New->value,
             'body' => 'Lead created from website',
         ]);
+
+        $crmNotifier->leadCreated($lead);
 
         return response()->json([
             'message' => 'Lead created successfully',

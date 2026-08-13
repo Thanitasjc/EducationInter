@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\ApplicationController;
 use App\Http\Controllers\Api\CountryController;
 use App\Http\Controllers\Api\CourseController;
+use App\Http\Controllers\Api\DocumentTypeController;
 use App\Http\Controllers\Api\EventController;
 use App\Http\Controllers\Api\HomeController;
 use App\Http\Controllers\Api\LeadController;
@@ -50,6 +51,7 @@ Route::get('/programs/{slug}', [ProgramController::class, 'show']);
 
 Route::post('/leads', [LeadController::class, 'store']);
 Route::post('/applications', [ApplicationController::class, 'store']);
+Route::get('/document-types', [DocumentTypeController::class, 'index']);
 
 Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);

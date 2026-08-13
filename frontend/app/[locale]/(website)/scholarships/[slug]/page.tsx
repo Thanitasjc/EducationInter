@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { CatalogCta } from "@/components/catalog/CatalogCta";
 import { Link } from "@/i18n/navigation";
 import { getScholarship } from "@/lib/api";
+import { coverFor } from "@/lib/media";
 import { localized } from "@/lib/utils";
 
 type Props = {
@@ -18,10 +19,19 @@ export default async function ScholarshipDetailPage({ params }: Props) {
 
   const t = await getTranslations("catalog");
   const title = localized(scholarship, locale, "title");
+  const cover = coverFor(
+    scholarship.slug,
+    scholarship.cover_path,
+    scholarship.university?.cover_path,
+  );
 
   return (
     <section className="section">
       <div className="mx-auto max-w-4xl space-y-8">
+        <div className="overflow-hidden rounded-3xl">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={cover} alt={title} className="aspect-[21/9] w-full object-cover md:aspect-[2/1]" />
+        </div>
         <div className="card-soft">
           <h1 className="text-3xl font-bold text-win-ink md:text-4xl">{title}</h1>
           <p className="mt-3 text-xl font-semibold text-win-blue">

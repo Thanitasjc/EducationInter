@@ -128,6 +128,69 @@ class LeadResource extends Resource
                     ->label('Consultant'),
             ])
             ->actions([
+                Tables\Actions\Action::make('convert')
+                    ->label('Convert')
+                    ->icon('heroicon-o-document-plus')
+                    ->color('success')
+                    ->visible(fn (Lead $record): bool => filled($record->email) && ! $record->application()->exists())
+                    ->requiresConfirmation()
+                    ->modalHeading('Convert lead to application')
+                    ->modalDescription('สร้างใบสมัครจากลีดนี้ และแจ้งนักเรียนในพอร์ทัล')
+                    ->action(function (Lead $record, LeadPipelineService $pipeline) {
+                        try {
+                            $application = $pipeline->convertToApplication($record, auth()->user());
+
+                            Notification::make()
+                                ->title('Application created')
+                                ->body($application->application_no)
+                                ->success()
+                                ->send();
+
+                            return redirect(ApplicationResource::getUrl('edit', ['record' => $application]));
+                        } catch (\Throwable $e) {
+                            Notification::make()
+                                ->title('Convert failed')
+                                ->body($e->getMessage())
+                                ->danger()
+                                ->send();
+                        }
+                    }),
+                Tables\Actions\Action::make('schedule')
+                    ->label('Schedule')
+                    ->icon('heroicon-o-calendar-days')
+                    ->form([
+                        Forms\Components\TextInput::make('title')
+                            ->required()
+                            ->default(fn (Lead $record) => 'Consultation: '.$record->name),
+                        Forms\Components\DateTimePicker::make('starts_at')->required()->seconds(false)->default(now()->addDay()->setTime(10, 0)),
+                        Forms\Components\DateTimePicker::make('ends_at')->seconds(false),
+                        Forms\Components\Select::make('type')
+                            ->options([
+                                'consultation' => 'Consultation',
+                                'document_review' => 'Document review',
+                                'interview' => 'Interview',
+                                'follow_up' => 'Follow-up',
+                                'other' => 'Other',
+                            ])
+                            ->default('consultation')
+                            ->required(),
+                        Forms\Components\Select::make('consultant_id')
+                            ->label('Consultant')
+                            ->options(fn () => static::consultantOptions())
+                            ->default(fn (Lead $record) => $record->assigned_to ?? auth()->id())
+                            ->searchable()
+                            ->required(),
+                        Forms\Components\Textarea::make('notes')->rows(2),
+                    ])
+                    ->action(function (Lead $record, array $data, LeadPipelineService $pipeline): void {
+                        $appointment = $pipeline->scheduleAppointment($record, $data, auth()->user());
+
+                        Notification::make()
+                            ->title('Appointment scheduled')
+                            ->body($appointment->starts_at?->format('Y-m-d H:i'))
+                            ->success()
+                            ->send();
+                    }),
                 Tables\Actions\Action::make('advance')
                     ->label('Advance')
                     ->icon('heroicon-o-arrow-right-circle')
@@ -177,6 +240,7 @@ class LeadResource extends Resource
     public static function getRelations(): array
     {
         return [
+            RelationManagers\AppointmentsRelationManager::class,
             RelationManagers\ActivitiesRelationManager::class,
         ];
     }

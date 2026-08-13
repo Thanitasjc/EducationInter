@@ -379,6 +379,7 @@ class DemoContentSeeder extends Seeder
                 'title_en' => 'Undergraduate Scholarship',
                 'amount_label_th' => 'สูงสุด £5,000',
                 'amount_label_en' => 'Up to £5,000',
+                'cover_path' => 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=1200&q=80',
             ],
             [
                 'slug' => 'manchester-masters-scholarship',
@@ -388,6 +389,7 @@ class DemoContentSeeder extends Seeder
                 'title_en' => 'Master’s Scholarship',
                 'amount_label_th' => 'สูงสุด £5,000',
                 'amount_label_en' => 'Up to £5,000',
+                'cover_path' => 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=1200&q=80',
             ],
             [
                 'slug' => 'ucl-global-undergraduate',
@@ -397,6 +399,7 @@ class DemoContentSeeder extends Seeder
                 'title_en' => 'Undergraduate Scholarship',
                 'amount_label_th' => 'เต็มจำนวนค่าเรียน',
                 'amount_label_en' => 'Full tuition',
+                'cover_path' => 'https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=1200&q=80',
             ],
             [
                 'slug' => 'ucl-global-masters',
@@ -406,6 +409,7 @@ class DemoContentSeeder extends Seeder
                 'title_en' => 'Master’s Scholarship',
                 'amount_label_th' => 'สูงสุด £10,000',
                 'amount_label_en' => 'Up to £10,000',
+                'cover_path' => 'https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=1200&q=80',
             ],
             [
                 'slug' => 'melbourne-international-undergraduate',
@@ -415,6 +419,7 @@ class DemoContentSeeder extends Seeder
                 'title_en' => 'Undergraduate Scholarship',
                 'amount_label_th' => 'สูงสุด 50% ของค่าเรียน',
                 'amount_label_en' => 'Up to 50% of tuition',
+                'cover_path' => 'https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&w=1200&q=80',
             ],
             [
                 'slug' => 'melbourne-international-masters',
@@ -424,6 +429,7 @@ class DemoContentSeeder extends Seeder
                 'title_en' => 'Master’s Scholarship',
                 'amount_label_th' => 'สูงสุด 50% ของค่าเรียน',
                 'amount_label_en' => 'Up to 50% of tuition',
+                'cover_path' => 'https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&w=1200&q=80',
             ],
             [
                 'slug' => 'toronto-undergraduate-scholarship',
@@ -433,6 +439,7 @@ class DemoContentSeeder extends Seeder
                 'title_en' => 'Undergraduate Scholarship',
                 'amount_label_th' => 'สูงสุด CAD $10,000',
                 'amount_label_en' => 'Up to CAD $10,000',
+                'cover_path' => 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1200&q=80',
             ],
             [
                 'slug' => 'toronto-masters-scholarship',
@@ -442,6 +449,7 @@ class DemoContentSeeder extends Seeder
                 'title_en' => 'Master’s Scholarship',
                 'amount_label_th' => 'สูงสุด CAD $10,000',
                 'amount_label_en' => 'Up to CAD $10,000',
+                'cover_path' => 'https://images.unsplash.com/photo-1517935706615-2717063c0395?auto=format&fit=crop&w=1200&q=80',
             ],
         ];
 

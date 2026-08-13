@@ -8,9 +8,9 @@ use App\Models\Document;
 use App\Models\DocumentType;
 use App\Models\Student;
 use App\Models\StudentNotification;
+use App\Support\Media;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class StudentPortalController extends Controller
 {
@@ -99,21 +99,22 @@ class StudentPortalController extends Controller
             abort_unless($ownsApp, 403);
         }
 
-        $path = $request->file('file')->store("students/{$student->id}/documents", 'public');
+        $stored = $request->file('file')->store("students/{$student->id}/documents", Media::diskName());
+        $url = Media::url($stored) ?? $stored;
 
         $document = Document::query()->create([
             'student_id' => $student->id,
             'application_id' => $data['application_id'] ?? null,
             'document_type_id' => $data['document_type_id'] ?? null,
             'name' => $data['name'] ?? $request->file('file')->getClientOriginalName(),
-            'path' => $path,
+            'path' => $url,
             'status' => 'pending',
         ]);
 
         return response()->json([
             'message' => 'Document uploaded',
             'data' => $document->load('type'),
-            'url' => Storage::disk('public')->url($path),
+            'url' => $url,
         ], 201);
     }
 

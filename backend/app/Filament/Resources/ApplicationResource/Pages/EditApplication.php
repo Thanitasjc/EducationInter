@@ -2,11 +2,15 @@
 
 namespace App\Filament\Resources\ApplicationResource\Pages;
 
+use App\Enums\ApplicationStatus;
 use App\Filament\Resources\ApplicationResource;
+use App\Filament\Resources\LeadResource;
 use App\Models\Application;
-use App\Models\ApplicationActivity;
-use App\Services\StudentNotifier;
+use App\Models\User;
+use App\Services\ApplicationPipelineService;
 use Filament\Actions;
+use Filament\Forms;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 
 class EditApplication extends EditRecord
@@ -18,6 +22,54 @@ class EditApplication extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            Actions\Action::make('openLead')
+                ->label('Open lead')
+                ->icon('heroicon-o-inbox-arrow-down')
+                ->url(fn (): ?string => $this->record->lead_id
+                    ? LeadResource::getUrl('edit', ['record' => $this->record->lead_id])
+                    : null)
+                ->visible(fn (): bool => filled($this->record->lead_id)),
+            Actions\Action::make('advance')
+                ->label('Advance status')
+                ->icon('heroicon-o-arrow-right-circle')
+                ->form([
+                    Forms\Components\Select::make('status')
+                        ->options(collect(ApplicationStatus::cases())->mapWithKeys(
+                            fn (ApplicationStatus $status) => [$status->value => strtoupper(str_replace('_', ' ', $status->value))]
+                        ))
+                        ->required(),
+                    Forms\Components\TextInput::make('next_action'),
+                    Forms\Components\Textarea::make('note')->rows(2),
+                ])
+                ->action(function (array $data, ApplicationPipelineService $pipeline): void {
+                    $pipeline->changeStatus(
+                        $this->record,
+                        $data['status'],
+                        auth()->user(),
+                        $data['note'] ?? null,
+                        $data['next_action'] ?? null,
+                    );
+                    $this->refreshFormData(['status', 'next_action', 'submitted_at']);
+                    Notification::make()->title('Application status updated')->success()->send();
+                }),
+            Actions\Action::make('assign')
+                ->label('Assign')
+                ->icon('heroicon-o-user-plus')
+                ->form([
+                    Forms\Components\Select::make('consultant_id')
+                        ->options(fn () => User::query()
+                            ->role(['consultant', 'admission_officer', 'admin', 'super_admin'])
+                            ->orderBy('name')
+                            ->pluck('name', 'id'))
+                        ->searchable()
+                        ->required(),
+                ])
+                ->action(function (array $data, ApplicationPipelineService $pipeline): void {
+                    $consultant = User::query()->findOrFail($data['consultant_id']);
+                    $pipeline->assign($this->record, $consultant, auth()->user());
+                    $this->refreshFormData(['consultant_id']);
+                    Notification::make()->title('Application assigned')->success()->send();
+                }),
             Actions\DeleteAction::make(),
         ];
     }
@@ -40,24 +92,15 @@ class EditApplication extends EditRecord
             return;
         }
 
-        ApplicationActivity::query()->create([
-            'application_id' => $record->id,
-            'user_id' => auth()->id(),
-            'type' => 'status_change',
-            'from_status' => $this->previousStatus,
-            'to_status' => $newStatus,
-            'body' => 'Status updated in admin',
-        ]);
+        // Form already persisted the new status; rewind in-memory so the pipeline can log/sync.
+        $record->status = ApplicationStatus::from($this->previousStatus);
 
-        $user = $record->student?->user;
-        if ($user) {
-            app(StudentNotifier::class)->notify(
-                $user,
-                'Application status updated',
-                "Application {$record->application_no} is now {$newStatus}.",
-                'info',
-                '/student/applications',
-            );
-        }
+        app(ApplicationPipelineService::class)->changeStatus(
+            $record,
+            $newStatus,
+            auth()->user(),
+            'Status updated in admin form',
+            $record->next_action,
+        );
     }
 }

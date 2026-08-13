@@ -39,10 +39,11 @@ class ScholarshipResource extends Resource
             Forms\Components\TextInput::make('amount_label_en'),
             Forms\Components\DatePicker::make('deadline'),
             MediaUpload::make('cover_path')
-                ->label('รูปปก')
+                ->label('รูปปก (แสดงหน้า /scholarships และหน้ารายละเอียด)')
                 ->image()
                 ->directory('covers/scholarships')
-                        ->imageEditor()
+                ->imageEditor()
+                ->helperText('อัปโหลดรูปปกแต่ละทุน — ถ้าว่าง เว็บจะใช้รูปปกมหาวิทยาลัยแทน')
                 ->columnSpanFull(),
             Forms\Components\Toggle::make('is_featured')->default(false),
             Forms\Components\Toggle::make('is_active')->default(true),

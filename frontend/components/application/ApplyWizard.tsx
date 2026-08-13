@@ -1,9 +1,9 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { FormEvent, useMemo, useState, type ReactNode } from "react";
+import { FormEvent, useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link } from "@/i18n/navigation";
-import { submitApplication } from "@/lib/api";
+import { getDocumentTypes, submitApplication, type DocumentTypeOption } from "@/lib/api";
 import type { Country, Course, University } from "@/types/catalog";
 import { localized } from "@/lib/utils";
 
@@ -50,6 +50,15 @@ export function ApplyWizard({ countries, universities, courses }: Props) {
   const [form, setForm] = useState<FormState>(initial);
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [resultNo, setResultNo] = useState<string | null>(null);
+  const [docTypes, setDocTypes] = useState<DocumentTypeOption[]>([]);
+  const [docFiles, setDocFiles] = useState<Record<string, File | null>>({});
+  const [extraFile, setExtraFile] = useState<File | null>(null);
+
+  useEffect(() => {
+    void getDocumentTypes()
+      .then((res) => setDocTypes(res.data ?? []))
+      .catch(() => setDocTypes([]));
+  }, []);
 
   const universitiesForCountry = useMemo(() => {
     if (!form.country_id) return universities;
@@ -78,25 +87,38 @@ export function ApplyWizard({ countries, universities, courses }: Props) {
 
     setStatus("loading");
     try {
-      const res = await submitApplication({
-        name: form.name,
-        email: form.email,
-        phone: form.phone || null,
-        locale,
-        country_id: form.country_id ? Number(form.country_id) : null,
-        university_id: form.university_id ? Number(form.university_id) : null,
-        course_id: form.course_id ? Number(form.course_id) : null,
-        intake: form.intake || null,
-        education_level: form.education_level || null,
-        education_history: [
-          {
-            school: form.school_name || null,
-            gpa: form.gpa || null,
-          },
-        ],
-        documents_note: form.documents_note || null,
-        message: form.message || null,
-      });
+      const fd = new FormData();
+      fd.append("name", form.name);
+      fd.append("email", form.email);
+      if (form.phone) fd.append("phone", form.phone);
+      fd.append("locale", locale);
+      if (form.country_id) fd.append("country_id", form.country_id);
+      if (form.university_id) fd.append("university_id", form.university_id);
+      if (form.course_id) fd.append("course_id", form.course_id);
+      if (form.intake) fd.append("intake", form.intake);
+      if (form.education_level) fd.append("education_level", form.education_level);
+      fd.append(
+        "education_history",
+        JSON.stringify([{ school: form.school_name || null, gpa: form.gpa || null }]),
+      );
+      if (form.documents_note) fd.append("documents_note", form.documents_note);
+      if (form.message) fd.append("message", form.message);
+
+      let index = 0;
+      for (const type of docTypes) {
+        const file = docFiles[String(type.id)];
+        if (!file) continue;
+        fd.append(`documents[${index}][file]`, file);
+        fd.append(`documents[${index}][document_type_id]`, String(type.id));
+        fd.append(`documents[${index}][name]`, file.name);
+        index += 1;
+      }
+      if (extraFile) {
+        fd.append(`documents[${index}][file]`, extraFile);
+        fd.append(`documents[${index}][name]`, extraFile.name);
+      }
+
+      const res = await submitApplication(fd);
       setResultNo(res.data.application_no);
       setStatus("success");
     } catch {
@@ -253,6 +275,35 @@ export function ApplyWizard({ countries, universities, courses }: Props) {
 
         {step === 6 && (
           <>
+            <p className="text-sm text-win-muted">{t("documentsHint")}</p>
+            {docTypes.map((type) => (
+              <Field
+                key={type.id}
+                label={`${localized(type as unknown as Record<string, unknown>, locale, "name")}${type.is_required ? ` (${t("recommended")})` : ""}`}
+              >
+                <input
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png,.webp"
+                  className="input"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0] ?? null;
+                    setDocFiles((prev) => ({ ...prev, [String(type.id)]: file }));
+                  }}
+                />
+                {docFiles[String(type.id)] && (
+                  <span className="text-xs text-win-muted">{docFiles[String(type.id)]?.name}</span>
+                )}
+              </Field>
+            ))}
+            <Field label={t("otherDocument")}>
+              <input
+                type="file"
+                accept=".pdf,.jpg,.jpeg,.png,.webp"
+                className="input"
+                onChange={(e) => setExtraFile(e.target.files?.[0] ?? null)}
+              />
+              {extraFile && <span className="text-xs text-win-muted">{extraFile.name}</span>}
+            </Field>
             <Field label={t("documentsNote")}>
               <textarea
                 className="input"
@@ -271,7 +322,9 @@ export function ApplyWizard({ countries, universities, courses }: Props) {
             </Field>
             <div className="rounded-xl bg-win-sky/60 p-4 text-sm text-win-ink">
               <p className="font-semibold">{t("review")}</p>
-              <p className="mt-2">{form.name} · {form.email}</p>
+              <p className="mt-2">
+                {form.name} · {form.email}
+              </p>
               <p>{form.phone}</p>
             </div>
           </>

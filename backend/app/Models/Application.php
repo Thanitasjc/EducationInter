@@ -12,6 +12,7 @@ class Application extends Model
     protected $fillable = [
         'application_no',
         'student_id',
+        'lead_id',
         'consultant_id',
         'country_id',
         'university_id',
@@ -38,6 +39,11 @@ class Application extends Model
     public function student(): BelongsTo
     {
         return $this->belongsTo(Student::class);
+    }
+
+    public function lead(): BelongsTo
+    {
+        return $this->belongsTo(Lead::class);
     }
 
     public function consultant(): BelongsTo

@@ -2,6 +2,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { CatalogCta } from "@/components/catalog/CatalogCta";
 import { Link } from "@/i18n/navigation";
 import { getPostCategories, getPosts } from "@/lib/api";
+import { coverFor } from "@/lib/media";
 import { buildMetadata } from "@/lib/seo";
 import { localized } from "@/lib/utils";
 
@@ -63,19 +64,31 @@ export default async function BlogPage({ params, searchParams }: Props) {
         </div>
 
         <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {posts.data.map((post) => (
-            <Link key={post.id} href={`/blog/${post.slug}`} className="card-soft block">
-              {post.category ? (
-                <p className="text-xs font-semibold uppercase text-win-purple">
-                  {localized(post.category, locale, "name")}
-                </p>
-              ) : null}
-              <h2 className="mt-2 text-lg font-bold">{localized(post, locale, "title")}</h2>
-              <p className="mt-2 line-clamp-3 text-sm text-win-muted">
-                {localized(post, locale, "excerpt")}
-              </p>
-            </Link>
-          ))}
+          {posts.data.map((post) => {
+            const title = localized(post, locale, "title");
+            const cover = coverFor(post.slug, post.cover_path);
+            return (
+              <Link
+                key={post.id}
+                href={`/blog/${post.slug}`}
+                className="card-soft block overflow-hidden p-0 transition hover:-translate-y-1 hover:border-win-purple/30"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={cover} alt={title} className="aspect-[16/10] w-full object-cover" />
+                <div className="p-5">
+                  {post.category ? (
+                    <p className="text-xs font-semibold uppercase text-win-purple">
+                      {localized(post.category, locale, "name")}
+                    </p>
+                  ) : null}
+                  <h2 className="mt-2 text-lg font-bold">{title}</h2>
+                  <p className="mt-2 line-clamp-3 text-sm text-win-muted">
+                    {localized(post, locale, "excerpt")}
+                  </p>
+                </div>
+              </Link>
+            );
+          })}
         </div>
         {posts.data.length === 0 && (
           <div className="card-soft mt-6 text-win-muted">{t("empty")}</div>
