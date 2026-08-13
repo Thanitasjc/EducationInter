@@ -3,9 +3,10 @@
 namespace App\Filament\Widgets;
 
 use App\Models\Application;
+use App\Models\Appointment;
+use App\Models\Document;
 use App\Models\Lead;
 use App\Models\Student;
-use App\Models\University;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
@@ -15,18 +16,28 @@ class StatsOverview extends BaseWidget
     {
         return [
             Stat::make('ลีด', Lead::query()->count())
-                ->description('ลีดทั้งหมดที่เข้ามา')
-                ->color('primary'),
+                ->description('ลีดทั้งหมด')
+                ->color('primary')
+                ->url(\App\Filament\Resources\LeadResource::getUrl()),
             Stat::make('ใบสมัคร', Application::query()->count())
                 ->description('ท่อการรับสมัคร')
-                ->color('success'),
-            Stat::make('นักเรียน', Student::query()->count())
-                ->description('นักเรียนที่ลงทะเบียน')
+                ->color('success')
+                ->url(\App\Filament\Resources\ApplicationResource::getUrl()),
+            Stat::make('เอกสารรอตรวจ', Document::query()->where('status', 'pending')->count())
+                ->description('Pending review')
+                ->color('warning')
+                ->url(\App\Filament\Resources\DocumentResource::getUrl()),
+            Stat::make('นัดหมายใกล้ถึง', Appointment::query()
+                ->where('status', 'scheduled')
+                ->where('starts_at', '>=', now())
+                ->count())
+                ->description('Scheduled upcoming')
                 ->color('info')
+                ->url(\App\Filament\Resources\AppointmentResource::getUrl()),
+            Stat::make('นักเรียน', Student::query()->count())
+                ->description('ลงทะเบียนแล้ว')
+                ->color('gray')
                 ->url(\App\Filament\Resources\StudentResource::getUrl()),
-            Stat::make('มหาวิทยาลัย', University::query()->count())
-                ->description('รายการในแคตตาล็อก')
-                ->color('warning'),
         ];
     }
 }

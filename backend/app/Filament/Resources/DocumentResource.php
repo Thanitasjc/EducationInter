@@ -4,14 +4,18 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\DocumentResource\Pages;
 use App\Models\Document;
+use App\Support\Media;
 use App\Services\StudentNotifier;
 use Filament\Forms;
+use Filament\Forms\Components\BaseFileUpload;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Storage;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class DocumentResource extends Resource
 {
@@ -32,34 +36,94 @@ class DocumentResource extends Resource
     public static function form(Form $form): Form
     {
         return $form->schema([
-            Forms\Components\Placeholder::make('student_name')
-                ->label('Student')
-                ->content(fn (?Document $record): string => $record?->student?->user?->name ?? '-'),
-            Forms\Components\TextInput::make('name')->required(),
-            Forms\Components\Select::make('document_type_id')
-                ->relationship('type', 'name_en')
-                ->searchable(),
+            Forms\Components\Select::make('student_id')
+                ->label('นักเรียน')
+                ->relationship(
+                    name: 'student',
+                    titleAttribute: 'id',
+                    modifyQueryUsing: fn (Builder $query) => $query->with('user'),
+                )
+                ->getOptionLabelFromRecordUsing(fn ($record): string => $record->user?->name.' ('.$record->user?->email.')')
+                ->searchable()
+                ->preload()
+                ->required(),
             Forms\Components\Select::make('application_id')
+                ->label('ใบสมัคร')
                 ->relationship('application', 'application_no')
-                ->searchable(),
+                ->searchable()
+                ->preload(),
+            Forms\Components\Select::make('document_type_id')
+                ->label('ประเภท')
+                ->relationship('type', 'name_en')
+                ->searchable()
+                ->preload(),
+            Forms\Components\TextInput::make('name')->required()->maxLength(255),
             Forms\Components\Select::make('status')
                 ->options([
                     'pending' => 'Pending',
                     'approved' => 'Approved',
                     'rejected' => 'Rejected',
                 ])
-                ->required(),
+                ->required()
+                ->default('pending'),
             Forms\Components\Textarea::make('review_note')->rows(3)->columnSpanFull(),
-            Forms\Components\Placeholder::make('file_link')
-                ->label('File')
-                ->content(function (?Document $record): string {
-                    if (! $record?->path) {
-                        return '-';
+            Forms\Components\FileUpload::make('path')
+                ->label('ไฟล์เอกสาร')
+                ->disk(Media::diskName())
+                ->directory('documents')
+                ->visibility('public')
+                ->acceptedFileTypes([
+                    'application/pdf',
+                    'image/jpeg',
+                    'image/png',
+                    'image/webp',
+                ])
+                ->maxSize(10240)
+                ->downloadable()
+                ->openable()
+                ->helperText('อัปโหลด PDF หรือรูป (สูงสุด 10MB)')
+                ->saveUploadedFileUsing(function (BaseFileUpload $component, TemporaryUploadedFile $file): ?string {
+                    try {
+                        if (! $file->exists()) {
+                            return null;
+                        }
+                    } catch (\League\Flysystem\UnableToCheckFileExistence $exception) {
+                        return null;
                     }
 
-                    return Storage::disk('public')->url($record->path);
-                }),
-        ]);
+                    $disk = Media::diskName();
+                    $directory = $component->getDirectory() ?? 'documents';
+                    $name = $component->getUploadedFileNameForStorage($file);
+                    $path = $file->storeAs($directory, $name, $disk);
+
+                    return Media::url($path) ?? Storage::disk($disk)->url($path);
+                })
+                ->getUploadedFileUsing(function (BaseFileUpload $component, string $file, string|array|null $storedFileNames): ?array {
+                    $url = Media::url($file);
+                    if (! $url) {
+                        return null;
+                    }
+
+                    $name = ($component->isMultiple() ? ($storedFileNames[$file] ?? null) : $storedFileNames)
+                        ?? basename(parse_url($url, PHP_URL_PATH) ?: $file);
+
+                    return [
+                        'name' => is_string($name) ? $name : basename($file),
+                        'size' => 0,
+                        'type' => null,
+                        'url' => $url,
+                    ];
+                })
+                ->columnSpanFull(),
+            Forms\Components\Placeholder::make('file_link')
+                ->label('ลิงก์ไฟล์')
+                ->content(function (?Document $record): string {
+                    $url = Media::url($record?->path);
+
+                    return $url ?: '-';
+                })
+                ->visibleOn('edit'),
+        ])->columns(2);
     }
 
     public static function table(Table $table): Table
@@ -67,7 +131,7 @@ class DocumentResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')->searchable(),
-                Tables\Columns\TextColumn::make('student.user.name')->label('Student'),
+                Tables\Columns\TextColumn::make('student.user.name')->label('Student')->searchable(),
                 Tables\Columns\TextColumn::make('type.name_en')->label('Type'),
                 Tables\Columns\TextColumn::make('application.application_no')->label('Application'),
                 Tables\Columns\TextColumn::make('status')->badge()
@@ -102,6 +166,11 @@ class DocumentResource extends Resource
                     ])
                     ->action(fn (Document $record, array $data) => static::review($record, 'rejected', $data['review_note'] ?? null)),
                 Tables\Actions\EditAction::make(),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
             ]);
     }
 
@@ -135,6 +204,7 @@ class DocumentResource extends Resource
     {
         return [
             'index' => Pages\ListDocuments::route('/'),
+            'create' => Pages\CreateDocument::route('/create'),
             'edit' => Pages\EditDocument::route('/{record}/edit'),
         ];
     }

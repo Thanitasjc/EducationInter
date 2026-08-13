@@ -102,6 +102,7 @@ class ApplicationResource extends Resource
     {
         return [
             RelationManagers\DocumentsRelationManager::class,
+            RelationManagers\ActivitiesRelationManager::class,
         ];
     }
 

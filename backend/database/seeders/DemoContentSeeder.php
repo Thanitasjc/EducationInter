@@ -3,15 +3,20 @@
 namespace Database\Seeders;
 
 use App\Enums\ApplicationStatus;
+use App\Enums\LeadStatus;
 use App\Models\Application;
+use App\Models\ApplicationActivity;
 use App\Models\Appointment;
 use App\Models\Consultant;
 use App\Models\Country;
 use App\Models\Course;
 use App\Models\CourseCategory;
+use App\Models\Document;
 use App\Models\DocumentType;
 use App\Models\Event;
 use App\Models\HomeSection;
+use App\Models\Lead;
+use App\Models\LeadActivity;
 use App\Models\PageContent;
 use App\Models\Partner;
 use App\Models\Post;
@@ -647,17 +652,155 @@ class DemoContentSeeder extends Seeder
             ]
         );
 
+        $demoLeads = [
+            [
+                'email' => 'lead.new@example.com',
+                'name' => 'ณัฐชา สายฝน',
+                'phone' => '0891112233',
+                'source' => 'website',
+                'status' => LeadStatus::New,
+                'message' => 'สนใจเรียนต่อ UK ปี 2026',
+            ],
+            [
+                'email' => 'lead.contacted@example.com',
+                'name' => 'James Wong',
+                'phone' => '0823344556',
+                'source' => 'line',
+                'status' => LeadStatus::Contacted,
+                'message' => 'ขอคำปรึกษาทุน Australia',
+            ],
+            [
+                'email' => 'lead.doc@example.com',
+                'name' => 'พิมพ์ใจ อรุณ',
+                'phone' => '0819988776',
+                'source' => 'event',
+                'status' => LeadStatus::Document,
+                'message' => 'เตรียมเอกสารสมัคร Manchester',
+                'student_id' => $student->id,
+            ],
+        ];
+
+        foreach ($demoLeads as $leadData) {
+            $lead = Lead::query()->updateOrCreate(
+                ['email' => $leadData['email']],
+                [
+                    'name' => $leadData['name'],
+                    'phone' => $leadData['phone'],
+                    'source' => $leadData['source'],
+                    'status' => $leadData['status'],
+                    'assigned_to' => $consultantUser->id,
+                    'country_id' => $uk->id,
+                    'university_id' => $manchester->id,
+                    'course_id' => Course::query()->where('slug', 'msc-management')->value('id'),
+                    'student_id' => $leadData['student_id'] ?? null,
+                    'message' => $leadData['message'],
+                    'notes' => 'Demo lead for CRM pipeline',
+                    'last_contact_at' => now()->subDays(rand(0, 5)),
+                ]
+            );
+
+            LeadActivity::query()->updateOrCreate(
+                [
+                    'lead_id' => $lead->id,
+                    'type' => 'note',
+                    'body' => 'Initial CRM demo note for '.$lead->name,
+                ],
+                [
+                    'user_id' => $consultantUser->id,
+                    'from_status' => null,
+                    'to_status' => $lead->status?->value,
+                ]
+            );
+        }
+
+        $docLead = Lead::query()->where('email', 'lead.doc@example.com')->first();
+
+        $passportTypeId = DocumentType::query()->where('slug', 'passport')->value('id');
+        $transcriptTypeId = DocumentType::query()->where('slug', 'transcript')->value('id');
+        $ieltsTypeId = DocumentType::query()->where('slug', 'ielts')->value('id');
+
+        $demoDocuments = [
+            [
+                'name' => 'Passport - Somchai',
+                'document_type_id' => $passportTypeId,
+                'status' => 'approved',
+                'path' => 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=1200&q=80',
+                'review_note' => 'Approved in demo seed',
+            ],
+            [
+                'name' => 'Transcript - Bachelor',
+                'document_type_id' => $transcriptTypeId,
+                'status' => 'pending',
+                'path' => 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=1200&q=80',
+                'review_note' => null,
+            ],
+            [
+                'name' => 'IELTS Result - pending',
+                'document_type_id' => $ieltsTypeId,
+                'status' => 'rejected',
+                'path' => 'https://images.unsplash.com/photo-1456513080080-7e9b1b0c5f2f?auto=format&fit=crop&w=1200&q=80',
+                'review_note' => 'Please upload a clearer scan',
+            ],
+        ];
+
+        foreach ($demoDocuments as $doc) {
+            Document::query()->updateOrCreate(
+                [
+                    'student_id' => $student->id,
+                    'application_id' => $application->id,
+                    'name' => $doc['name'],
+                ],
+                [
+                    'document_type_id' => $doc['document_type_id'],
+                    'path' => $doc['path'],
+                    'status' => $doc['status'],
+                    'review_note' => $doc['review_note'],
+                ]
+            );
+        }
+
+        ApplicationActivity::query()->updateOrCreate(
+            [
+                'application_id' => $application->id,
+                'type' => 'note',
+                'body' => 'Demo: waiting for IELTS re-upload',
+            ],
+            [
+                'user_id' => $consultantUser->id,
+                'from_status' => ApplicationStatus::Consultation->value,
+                'to_status' => ApplicationStatus::DocumentRequired->value,
+            ]
+        );
+
         Appointment::query()->updateOrCreate(
             [
                 'student_id' => $student->id,
                 'title' => 'Consultation with Education Interntions Advisor',
             ],
             [
+                'lead_id' => $docLead?->id,
+                'consultant_id' => $consultantUser->id,
                 'type' => 'consultation',
                 'starts_at' => now()->addDays(5)->setTime(14, 0),
                 'ends_at' => now()->addDays(5)->setTime(15, 0),
                 'status' => 'scheduled',
                 'notes' => 'Discuss documents and intake timeline',
+            ]
+        );
+
+        Appointment::query()->updateOrCreate(
+            [
+                'student_id' => $student->id,
+                'title' => 'Document review call',
+            ],
+            [
+                'lead_id' => $docLead?->id,
+                'consultant_id' => $consultantUser->id,
+                'type' => 'document_review',
+                'starts_at' => now()->addDays(8)->setTime(10, 30),
+                'ends_at' => now()->addDays(8)->setTime(11, 0),
+                'status' => 'scheduled',
+                'notes' => 'Review passport + transcript before submission',
             ]
         );
 

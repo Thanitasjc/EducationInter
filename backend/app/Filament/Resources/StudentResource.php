@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\StudentResource\Pages;
+use App\Filament\Resources\StudentResource\RelationManagers;
 use App\Models\Student;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -175,7 +176,11 @@ class StudentResource extends Resource
 
     public static function getRelations(): array
     {
-        return [];
+        return [
+            RelationManagers\ApplicationsRelationManager::class,
+            RelationManagers\DocumentsRelationManager::class,
+            RelationManagers\AppointmentsRelationManager::class,
+        ];
     }
 
     public static function getPages(): array

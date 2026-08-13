@@ -359,8 +359,8 @@ NEXT_PUBLIC_SITE_URL=https://education-inter.vercel.app
 ### Filament (`/admin`)
 
 - CMS: Countries, Universities, Courses, Scholarships, Programs, Services, Reviews, Blog, Events, Home / Page Content, Partners
-- CRM: Leads
-- Admission: Applications, Documents
+- CRM: Leads, Appointments, Consultants, Student Notifications
+- Admission: Students, Applications, Documents, Document Types
 
 ---
 
