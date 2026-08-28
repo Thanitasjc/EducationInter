@@ -212,7 +212,7 @@ EducationInter/
 ### ดีไซน์ที่ล็อกไว้แล้ว
 
 1. Admin = Filament ที่ `/admin`
-2. Student auth = อีเมล/รหัส + Facebook + LINE
+2. Student auth = อีเมล/รหัส + Facebook
 3. ภาษา = `th` / `en`
 4. Deploy = Vercel + Render (Docker) + Supabase
 

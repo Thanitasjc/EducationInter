@@ -53,9 +53,6 @@ export default function RegisterPage() {
         <a href={getSocialLoginUrl("facebook")} className="block rounded-xl border px-4 py-3 text-center text-sm font-semibold">
           {t("facebook")}
         </a>
-        <a href={getSocialLoginUrl("line")} className="block rounded-xl border px-4 py-3 text-center text-sm font-semibold">
-          {t("line")}
-        </a>
         <p className="text-center text-sm">
           <Link href="/login" className="font-semibold text-win-purple">
             {t("login")}

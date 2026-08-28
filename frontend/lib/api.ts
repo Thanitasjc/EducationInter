@@ -258,7 +258,7 @@ export async function submitApplication(payload: Record<string, unknown> | FormD
   });
 }
 
-export function getSocialLoginUrl(provider: "facebook" | "line") {
+export function getSocialLoginUrl(provider: "facebook") {
   return `${API_URL}/auth/${provider}/redirect`;
 }
 

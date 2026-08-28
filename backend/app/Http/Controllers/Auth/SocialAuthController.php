@@ -16,7 +16,7 @@ use Laravel\Socialite\Facades\Socialite;
 class SocialAuthController extends Controller
 {
     /** @var array<int, string> */
-    private array $providers = ['facebook', 'line'];
+    private array $providers = ['facebook'];
 
     public function redirect(string $provider): RedirectResponse
     {
@@ -35,7 +35,7 @@ class SocialAuthController extends Controller
         $frontend = rtrim(config('app.frontend_url', env('FRONTEND_URL', 'http://localhost:3000')), '/');
 
         if ($request->filled('error')) {
-            return redirect()->away("{$frontend}/th/login?error=line_login_failed");
+            return redirect()->away("{$frontend}/th/login?error=social_login_failed");
         }
 
         try {
@@ -49,7 +49,7 @@ class SocialAuthController extends Controller
                 'error' => $exception->getMessage(),
             ]);
 
-            return redirect()->away("{$frontend}/th/login?error=line_login_failed");
+            return redirect()->away("{$frontend}/th/login?error=social_login_failed");
         }
 
         $user = User::query()
