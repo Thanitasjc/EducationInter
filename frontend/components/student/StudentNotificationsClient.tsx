@@ -26,22 +26,22 @@ export function StudentNotificationsClient() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  async function load() {
-    setLoading(true);
-    setError("");
-    try {
-      const res = await getStudentNotifications();
-      setItems((res.data as NotificationItem[]) ?? []);
-    } catch {
-      setError(t("loadError"));
-    } finally {
-      setLoading(false);
-    }
-  }
-
   useEffect(() => {
-    void load();
-  }, []);
+    const loadInitialData = async () => {
+      setLoading(true);
+      setError("");
+      try {
+        const res = await getStudentNotifications();
+        setItems((res.data as NotificationItem[]) ?? []);
+      } catch {
+        setError(t("loadError"));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    void loadInitialData();
+  }, [t]);
 
   async function onRead(id: number) {
     await markNotificationRead(id);

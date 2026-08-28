@@ -37,7 +37,22 @@ export function StudentDocumentsClient() {
   }
 
   useEffect(() => {
-    load();
+    const loadInitialData = async () => {
+      setLoading(true);
+      try {
+        const res = await getStudentDocuments();
+        setDocs(res.data);
+        setTypes(res.types);
+        setChecklist(res.checklist ?? []);
+      } catch {
+        setDocs([]);
+        setChecklist([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    void loadInitialData();
   }, []);
 
   async function onUpload(e: FormEvent<HTMLFormElement>) {

@@ -8,16 +8,19 @@ import { getToken } from "@/lib/auth";
 export function StudentAuthGate({ children }: { children: ReactNode }) {
   const t = useTranslations("student");
   const router = useRouter();
-  const [ready, setReady] = useState(false);
-  const [authed, setAuthed] = useState(false);
+  const [ready, setReady] = useState(() => typeof window !== "undefined");
+  const [authed, setAuthed] = useState(() => Boolean(getToken()));
 
   useEffect(() => {
     const token = getToken();
-    setAuthed(Boolean(token));
-    setReady(true);
     if (!token) {
       router.replace("/login");
     }
+    const syncAuth = window.setTimeout(() => {
+      setAuthed(Boolean(token));
+      setReady(true);
+    }, 0);
+    return () => window.clearTimeout(syncAuth);
   }, [router]);
 
   if (!ready) {

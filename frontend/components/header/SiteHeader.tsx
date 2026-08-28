@@ -29,7 +29,8 @@ export function SiteHeader() {
   const menuId = useId();
 
   useEffect(() => {
-    setOpen(false);
+    const closeMenu = window.setTimeout(() => setOpen(false), 0);
+    return () => window.clearTimeout(closeMenu);
   }, [pathname, locale]);
 
   useEffect(() => {

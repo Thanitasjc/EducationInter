@@ -8,27 +8,33 @@ export function StudentAppointmentsClient() {
   const t = useTranslations("student");
   const locale = useLocale();
   const [items, setItems] = useState<Array<Record<string, unknown>> | null>(null);
+  const [now, setNow] = useState<number | null>(null);
 
   useEffect(() => {
     getStudentAppointments()
-      .then((res) => setItems(res.data))
-      .catch(() => setItems([]));
+      .then((res) => {
+        setItems(res.data);
+        setNow(Date.now());
+      })
+      .catch(() => {
+        setItems([]);
+        setNow(Date.now());
+      });
   }, []);
 
   const { upcoming, past } = useMemo(() => {
     const list = items ?? [];
-    const now = Date.now();
     const up: Array<Record<string, unknown>> = [];
     const prev: Array<Record<string, unknown>> = [];
     for (const item of list) {
       const start = item.starts_at ? new Date(String(item.starts_at)).getTime() : 0;
-      if (start >= now && String(item.status) !== "cancelled") up.push(item);
+      if (start >= (now ?? 0) && String(item.status) !== "cancelled") up.push(item);
       else prev.push(item);
     }
     return { upcoming: up, past: prev };
-  }, [items]);
+  }, [items, now]);
 
-  if (!items) {
+  if (!items || now === null) {
     return <div className="card-soft text-win-muted">{t("loading")}</div>;
   }
 
