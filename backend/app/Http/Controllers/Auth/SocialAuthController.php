@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
@@ -28,7 +29,22 @@ class SocialAuthController extends Controller
     {
         abort_unless(in_array($provider, $this->providers, true), 404);
 
-        $socialUser = Socialite::driver($provider)->stateless()->user();
+        $frontend = rtrim(config('app.frontend_url', env('FRONTEND_URL', 'http://localhost:3000')), '/');
+
+        if ($request->filled('error')) {
+            return redirect()->away("{$frontend}/th/login?error=line_login_failed");
+        }
+
+        try {
+            $socialUser = Socialite::driver($provider)->stateless()->user();
+        } catch (\Throwable $exception) {
+            Log::warning('Social login callback failed.', [
+                'provider' => $provider,
+                'error' => $exception->getMessage(),
+            ]);
+
+            return redirect()->away("{$frontend}/th/login?error=line_login_failed");
+        }
 
         $user = User::query()
             ->where('provider', $provider)
@@ -75,7 +91,6 @@ class SocialAuthController extends Controller
         }
 
         $token = $user->createToken('student')->plainTextToken;
-        $frontend = rtrim(config('app.frontend_url', env('FRONTEND_URL', 'http://localhost:3000')), '/');
 
         return redirect()->away("{$frontend}/auth/callback?token={$token}");
     }
