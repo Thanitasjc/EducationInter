@@ -22,7 +22,10 @@ class SocialAuthController extends Controller
     {
         abort_unless(in_array($provider, $this->providers, true), 404);
 
-        return Socialite::driver($provider)->stateless()->redirect();
+        return Socialite::driver($provider)
+            ->scopes(['openid', 'profile'])
+            ->stateless()
+            ->redirect();
     }
 
     public function callback(Request $request, string $provider): RedirectResponse|JsonResponse
@@ -36,7 +39,10 @@ class SocialAuthController extends Controller
         }
 
         try {
-            $socialUser = Socialite::driver($provider)->stateless()->user();
+            $socialUser = Socialite::driver($provider)
+                ->scopes(['openid', 'profile'])
+                ->stateless()
+                ->user();
         } catch (\Throwable $exception) {
             Log::warning('Social login callback failed.', [
                 'provider' => $provider,
