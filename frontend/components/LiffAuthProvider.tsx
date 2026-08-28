@@ -1,8 +1,8 @@
 "use client";
 
-import { useRouter } from "@/i18n/navigation";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { loginWithLineLiff } from "@/lib/api";
-import { getToken, setToken } from "@/lib/auth";
+import { AUTH_CHANGE_EVENT, getToken, setToken } from "@/lib/auth";
 import {
   cleanupStaleLiffUrl,
   clearLineLiffLoginIntent,
@@ -20,9 +20,22 @@ type Props = {
 
 export function LiffAuthProvider({ children }: Props) {
   const router = useRouter();
+  const pathname = usePathname();
   const t = useTranslations("auth");
   const [checking, setChecking] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    function onAuthChange() {
+      if (!getToken()) {
+        setChecking(false);
+        setError(null);
+      }
+    }
+
+    window.addEventListener(AUTH_CHANGE_EVENT, onAuthChange);
+    return () => window.removeEventListener(AUTH_CHANGE_EVENT, onAuthChange);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -31,6 +44,7 @@ export function LiffAuthProvider({ children }: Props) {
       cleanupStaleLiffUrl();
 
       if (getToken()) {
+        setChecking(false);
         return;
       }
 
@@ -38,6 +52,7 @@ export function LiffAuthProvider({ children }: Props) {
       const desktopLogin = isLiffLoginIntent() && !inLineApp;
 
       if (!inLineApp && !desktopLogin) {
+        setChecking(false);
         return;
       }
 
@@ -80,6 +95,7 @@ export function LiffAuthProvider({ children }: Props) {
         clearLineLiffLoginIntent();
         cleanupStaleLiffUrl();
         setToken(response.token);
+        setChecking(false);
         router.replace("/student/dashboard");
       } catch {
         if (!cancelled) {
@@ -96,7 +112,7 @@ export function LiffAuthProvider({ children }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [router, t]);
+  }, [router, pathname, t]);
 
   if (checking && !getToken()) {
     return (
