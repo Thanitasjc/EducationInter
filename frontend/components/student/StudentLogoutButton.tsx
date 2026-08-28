@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { clearToken } from "@/lib/auth";
+import { clearLineLiffLoginIntent } from "@/lib/liff";
 
 export function StudentLogoutButton() {
   const t = useTranslations("student");
@@ -12,6 +13,7 @@ export function StudentLogoutButton() {
     <button
       type="button"
       onClick={() => {
+        clearLineLiffLoginIntent();
         clearToken();
         router.push("/login");
       }}

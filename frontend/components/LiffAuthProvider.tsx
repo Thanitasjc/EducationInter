@@ -4,6 +4,7 @@ import { useRouter } from "@/i18n/navigation";
 import { loginWithLineLiff } from "@/lib/api";
 import { getToken, setToken } from "@/lib/auth";
 import {
+  cleanupStaleLiffUrl,
   clearLineLiffLoginIntent,
   getLineIdToken,
   initializeLiff,
@@ -27,6 +28,8 @@ export function LiffAuthProvider({ children }: Props) {
     let cancelled = false;
 
     async function authenticateWithLiff() {
+      cleanupStaleLiffUrl();
+
       if (getToken()) {
         return;
       }
@@ -60,7 +63,12 @@ export function LiffAuthProvider({ children }: Props) {
         }
 
         if (!idToken) {
-          // liff.login() redirected away; keep the loading state for the return trip.
+          window.setTimeout(() => {
+            if (!cancelled && !getToken()) {
+              clearLineLiffLoginIntent();
+              setChecking(false);
+            }
+          }, 2500);
           return;
         }
 
@@ -70,11 +78,13 @@ export function LiffAuthProvider({ children }: Props) {
         }
 
         clearLineLiffLoginIntent();
+        cleanupStaleLiffUrl();
         setToken(response.token);
         router.replace("/student/dashboard");
       } catch {
         if (!cancelled) {
           clearLineLiffLoginIntent();
+          cleanupStaleLiffUrl();
           setError(t("liffLoginError"));
           setChecking(false);
         }

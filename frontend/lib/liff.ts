@@ -39,11 +39,23 @@ export function isLiffLoginIntent(): boolean {
     return false;
   }
 
-  if (sessionStorage.getItem(LINE_LIFF_LOGIN_KEY) === "1") {
-    return true;
+  return sessionStorage.getItem(LINE_LIFF_LOGIN_KEY) === "1";
+}
+
+export function cleanupStaleLiffUrl(): void {
+  if (typeof window === "undefined" || isLiffLoginIntent()) {
+    return;
   }
 
-  return new URLSearchParams(window.location.search).has("liff.referrer");
+  const url = new URL(window.location.href);
+  if (!url.searchParams.has("liff.referrer")) {
+    return;
+  }
+
+  url.searchParams.delete("liff.referrer");
+  const query = url.searchParams.toString();
+  const next = `${url.pathname}${query ? `?${query}` : ""}${url.hash}`;
+  window.history.replaceState({}, "", next);
 }
 
 export function startLineLiffLogin(): void {
