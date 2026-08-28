@@ -263,12 +263,32 @@ export function getSocialLoginUrl(provider: "facebook") {
 }
 
 export async function loginWithLineLiff(idToken: string) {
-  return apiFetch<{ token: string; user: Record<string, unknown> }>("/auth/line/liff", {
+  const url = `${API_URL}/auth/line/liff`;
+  const res = await fetch(url, {
     method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify({ id_token: idToken }),
-    next: { revalidate: 0 },
     cache: "no-store",
+    signal: AbortSignal.timeout(Number(process.env.NEXT_PUBLIC_AUTH_TIMEOUT_MS ?? 60_000)),
   });
+
+  if (!res.ok) {
+    let message = `API ${res.status}`;
+    try {
+      const body = (await res.json()) as { message?: string };
+      if (body.message) {
+        message = body.message;
+      }
+    } catch {
+      // ignore JSON parse errors
+    }
+    throw new Error(message);
+  }
+
+  return res.json() as Promise<{ token: string; user: Record<string, unknown> }>;
 }
 
 export async function login(email: string, password: string) {

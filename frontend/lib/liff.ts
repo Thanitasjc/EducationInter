@@ -19,6 +19,27 @@ type LiffInitState = {
 
 let initialization: Promise<LiffInitState> | null = null;
 
+export function isLineInAppBrowser(): boolean {
+  if (typeof navigator === "undefined") {
+    return false;
+  }
+
+  return /Line\//i.test(navigator.userAgent);
+}
+
+function createInitialization(): Promise<LiffInitState> {
+  return liff
+    .init({ liffId: LIFF_ID })
+    .then(() => ({
+      initialized: true,
+      isInClient: liff.isInClient(),
+    }))
+    .catch((error) => {
+      initialization = null;
+      throw error;
+    });
+}
+
 export function initializeLiff(): Promise<LiffInitState> {
   if (typeof window === "undefined") {
     return Promise.reject(new Error("LIFF can only be initialized in a browser."));
@@ -27,10 +48,7 @@ export function initializeLiff(): Promise<LiffInitState> {
   window.liff = liff;
 
   if (!initialization) {
-    initialization = liff.init({ liffId: LIFF_ID }).then(() => ({
-      initialized: true,
-      isInClient: liff.isInClient(),
-    }));
+    initialization = createInitialization();
   }
 
   return initialization;
@@ -38,6 +56,10 @@ export function initializeLiff(): Promise<LiffInitState> {
 
 export function isLiffClient(): boolean {
   return typeof window !== "undefined" && liff.isInClient();
+}
+
+function getLiffRedirectUri(): string {
+  return `${window.location.origin}${window.location.pathname}`;
 }
 
 export async function getLineIdToken(): Promise<string | null> {
@@ -48,7 +70,7 @@ export async function getLineIdToken(): Promise<string | null> {
   }
 
   if (!liff.isLoggedIn()) {
-    liff.login({ redirectUri: window.location.href });
+    liff.login({ redirectUri: getLiffRedirectUri() });
     return null;
   }
 

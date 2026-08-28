@@ -3,7 +3,7 @@
 import { useRouter } from "@/i18n/navigation";
 import { loginWithLineLiff } from "@/lib/api";
 import { getToken, setToken } from "@/lib/auth";
-import { getLineIdToken, initializeLiff } from "@/lib/liff";
+import { getLineIdToken, initializeLiff, isLineInAppBrowser } from "@/lib/liff";
 import { useTranslations } from "next-intl";
 import { type ReactNode, useEffect, useState } from "react";
 
@@ -15,16 +15,15 @@ export function LiffAuthProvider({ children }: Props) {
   const router = useRouter();
   const t = useTranslations("auth");
   const [checking, setChecking] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
 
     async function authenticateWithLiff() {
-      if (getToken()) {
+      if (getToken() || !isLineInAppBrowser()) {
         return;
       }
-
-      setChecking(true);
 
       try {
         const state = await initializeLiff();
@@ -33,12 +32,19 @@ export function LiffAuthProvider({ children }: Props) {
         }
 
         if (!state.isInClient) {
-          setChecking(false);
           return;
         }
 
+        setChecking(true);
+        setError(null);
+
         const idToken = await getLineIdToken();
-        if (cancelled || !idToken) {
+        if (cancelled) {
+          return;
+        }
+
+        if (!idToken) {
+          // liff.login() redirected away; keep the loading state for the return trip.
           return;
         }
 
@@ -51,6 +57,7 @@ export function LiffAuthProvider({ children }: Props) {
         router.replace("/student/dashboard");
       } catch {
         if (!cancelled) {
+          setError(t("liffLoginError"));
           setChecking(false);
         }
       }
@@ -61,12 +68,13 @@ export function LiffAuthProvider({ children }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [router]);
+  }, [router, t]);
 
   if (checking && !getToken()) {
     return (
-      <div className="flex min-h-[50vh] items-center justify-center px-4">
+      <div className="flex min-h-[50vh] flex-col items-center justify-center gap-3 px-4 text-center">
         <p className="text-sm text-win-muted">{t("liffSigningIn")}</p>
+        {error && <p className="text-sm text-red-600">{error}</p>}
       </div>
     );
   }

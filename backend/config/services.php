@@ -42,7 +42,7 @@ return [
     ],
 
     'line' => [
-        'channel_id' => env('LINE_CHANNEL_ID'),
+        'channel_id' => env('LINE_CHANNEL_ID', env('LINE_CLIENT_ID')),
     ],
 
 ];
