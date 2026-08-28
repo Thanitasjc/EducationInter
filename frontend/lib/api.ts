@@ -262,6 +262,15 @@ export function getSocialLoginUrl(provider: "facebook") {
   return `${API_URL}/auth/${provider}/redirect`;
 }
 
+export async function loginWithLineLiff(idToken: string) {
+  return apiFetch<{ token: string; user: Record<string, unknown> }>("/auth/line/liff", {
+    method: "POST",
+    body: JSON.stringify({ id_token: idToken }),
+    next: { revalidate: 0 },
+    cache: "no-store",
+  });
+}
+
 export async function login(email: string, password: string) {
   return apiFetch<{ token: string; user: Record<string, unknown> }>("/auth/login", {
     method: "POST",

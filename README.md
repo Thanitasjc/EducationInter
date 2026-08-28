@@ -142,7 +142,11 @@ AWS_ENDPOINT=https://velpsbmfvdydkhuitizo.storage.supabase.co/storage/v1/s3
 AWS_URL=https://velpsbmfvdydkhuitizo.supabase.co/storage/v1/object/public/media
 AWS_USE_PATH_STYLE_ENDPOINT=true
 SANCTUM_STATEFUL_DOMAINS=education-inter.vercel.app
+LINE_CHANNEL_ID=<Channel ID จาก LINE Developers → Basic settings>
 ```
+
+> **LINE LIFF login:** ใส่ `LINE_CHANNEL_ID` (Channel ID ของ LINE Login channel) บน Render  
+> LIFF ID บน Vercel: `NEXT_PUBLIC_LIFF_ID=2011268960-1YH2wdBp`
 
 > **รูปภาพถาวร (Supabase Storage):**  
 > 1. สร้าง bucket สาธารณะชื่อ `media` (ทำแล้วในโปรเจกต์นี้)  
@@ -156,6 +160,8 @@ SANCTUM_STATEFUL_DOMAINS=education-inter.vercel.app
 NEXT_PUBLIC_API_URL=https://education-inter-api.onrender.com/api
 NEXT_PUBLIC_SITE_URL=https://education-inter.vercel.app
 NEXT_PUBLIC_MEDIA_BASE_URL=https://velpsbmfvdydkhuitizo.supabase.co/storage/v1/object/public/media
+NEXT_PUBLIC_LIFF_ID=2011268960-1YH2wdBp
+NEXT_PUBLIC_LIFF_URL=https://liff.line.me/2011268960-1YH2wdBp
 ```
 
 ---
@@ -212,7 +218,7 @@ EducationInter/
 ### ดีไซน์ที่ล็อกไว้แล้ว
 
 1. Admin = Filament ที่ `/admin`
-2. Student auth = อีเมล/รหัส + Facebook
+2. Student auth = อีเมล/รหัส + Facebook + LINE LIFF
 3. ภาษา = `th` / `en`
 4. Deploy = Vercel + Render (Docker) + Supabase
 

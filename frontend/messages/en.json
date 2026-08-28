@@ -82,6 +82,8 @@
     "register": "Register",
     "or": "or",
     "facebook": "Continue with Facebook",
+    "line": "Continue with LINE",
+    "liffSigningIn": "Signing in with LINE...",
     "loginError": "Invalid email or password",
     "registerError": "Registration failed. Please check your details.",
     "forgotTitle": "Forgot password",

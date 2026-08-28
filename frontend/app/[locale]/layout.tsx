@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { routing } from "@/i18n/routing";
 import { buildMetadata } from "@/lib/seo";
+import { AppProviders } from "@/components/AppProviders";
 
 const prompt = Prompt({
   subsets: ["thai", "latin"],
@@ -51,7 +52,7 @@ export default async function LocaleLayout({ children, params }: Props) {
     <html lang={locale} className={`${prompt.variable} h-full`}>
       <body className="min-h-full bg-background text-foreground antialiased">
         <NextIntlClientProvider messages={messages}>
-          {children}
+          <AppProviders>{children}</AppProviders>
         </NextIntlClientProvider>
       </body>
     </html>

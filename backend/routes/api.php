@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\SitemapController;
 use App\Http\Controllers\Api\StudentPortalController;
 use App\Http\Controllers\Api\UniversityController;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Auth\LineLiffAuthController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use Illuminate\Support\Facades\Route;
 
@@ -60,6 +61,7 @@ Route::prefix('auth')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
     Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+    Route::post('/line/liff', LineLiffAuthController::class);
     Route::get('/{provider}/redirect', [SocialAuthController::class, 'redirect']);
     Route::get('/{provider}/callback', [SocialAuthController::class, 'callback']);
 

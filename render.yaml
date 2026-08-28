@@ -80,6 +80,8 @@ services:
         sync: false
       - key: MAIL_FROM_NAME
         value: Education Interntions
+      - key: LINE_CHANNEL_ID
+        sync: false
 
   # Daily CRM follow-up alerts (requires paid cron on some plans; also runnable from Admin → รายงานลีด)
   - type: cron

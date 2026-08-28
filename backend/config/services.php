@@ -41,4 +41,8 @@ return [
         'redirect' => env('FACEBOOK_REDIRECT_URI'),
     ],
 
+    'line' => [
+        'channel_id' => env('LINE_CHANNEL_ID'),
+    ],
+
 ];
