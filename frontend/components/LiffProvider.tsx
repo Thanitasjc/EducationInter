@@ -26,7 +26,8 @@ export function LiffProvider({ children }: { children: ReactNode }) {
         setState({ initialized, isInClient, error: null });
 
         if (process.env.NODE_ENV === "development") {
-          console.debug("LIFF initialized", { initialized, isInClient });
+          console.debug("LIFF initialized");
+          console.debug(`isInClient: ${isInClient}`);
         }
       })
       .catch((error: unknown) => {
