@@ -21,7 +21,7 @@ class AppServiceProvider extends ServiceProvider
         }
 
         Event::listen(function (SocialiteWasCalled $event) {
-            $event->extendSocialite('line', \SocialiteProviders\Line\Provider::class);
+            $event->extendSocialite('line', \App\Services\LineSocialiteProvider::class);
         });
     }
 }
