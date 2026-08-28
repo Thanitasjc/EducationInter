@@ -4,6 +4,12 @@ import liff from "@line/liff";
 
 export const LIFF_ID = "2011268960-1YH2wdBp";
 
+declare global {
+  interface Window {
+    liff?: typeof liff;
+  }
+}
+
 type LiffInitState = {
   initialized: boolean;
   isInClient: boolean;
@@ -15,6 +21,8 @@ export function initializeLiff(): Promise<LiffInitState> {
   if (typeof window === "undefined") {
     return Promise.reject(new Error("LIFF can only be initialized in a browser."));
   }
+
+  window.liff = liff;
 
   if (!initialization) {
     initialization = liff.init({ liffId: LIFF_ID }).then(() => ({
