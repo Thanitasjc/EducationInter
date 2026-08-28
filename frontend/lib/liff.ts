@@ -6,6 +6,8 @@ export const LIFF_ID = process.env.NEXT_PUBLIC_LIFF_ID ?? "2011268960-1YH2wdBp";
 
 export const LIFF_URL = process.env.NEXT_PUBLIC_LIFF_URL ?? `https://liff.line.me/${LIFF_ID}`;
 
+const LINE_LIFF_LOGIN_KEY = "line_liff_login";
+
 declare global {
   interface Window {
     liff?: typeof liff;
@@ -17,7 +19,12 @@ type LiffInitState = {
   isInClient: boolean;
 };
 
+type LiffInitOptions = {
+  withLoginOnExternalBrowser?: boolean;
+};
+
 let initialization: Promise<LiffInitState> | null = null;
+let currentInitOptions: LiffInitOptions = {};
 
 export function isLineInAppBrowser(): boolean {
   if (typeof navigator === "undefined") {
@@ -27,9 +34,32 @@ export function isLineInAppBrowser(): boolean {
   return /Line\//i.test(navigator.userAgent);
 }
 
-function createInitialization(): Promise<LiffInitState> {
+export function isLiffLoginIntent(): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  if (sessionStorage.getItem(LINE_LIFF_LOGIN_KEY) === "1") {
+    return true;
+  }
+
+  return new URLSearchParams(window.location.search).has("liff.referrer");
+}
+
+export function startLineLiffLogin(): void {
+  sessionStorage.setItem(LINE_LIFF_LOGIN_KEY, "1");
+}
+
+export function clearLineLiffLoginIntent(): void {
+  sessionStorage.removeItem(LINE_LIFF_LOGIN_KEY);
+}
+
+function createInitialization(options: LiffInitOptions): Promise<LiffInitState> {
   return liff
-    .init({ liffId: LIFF_ID })
+    .init({
+      liffId: LIFF_ID,
+      ...(options.withLoginOnExternalBrowser ? { withLoginOnExternalBrowser: true } : {}),
+    })
     .then(() => ({
       initialized: true,
       isInClient: liff.isInClient(),
@@ -40,15 +70,23 @@ function createInitialization(): Promise<LiffInitState> {
     });
 }
 
-export function initializeLiff(): Promise<LiffInitState> {
+export function initializeLiff(options: LiffInitOptions = {}): Promise<LiffInitState> {
   if (typeof window === "undefined") {
     return Promise.reject(new Error("LIFF can only be initialized in a browser."));
   }
 
   window.liff = liff;
 
+  const optionsChanged =
+    currentInitOptions.withLoginOnExternalBrowser !== options.withLoginOnExternalBrowser;
+
+  if (optionsChanged) {
+    initialization = null;
+    currentInitOptions = options;
+  }
+
   if (!initialization) {
-    initialization = createInitialization();
+    initialization = createInitialization(options);
   }
 
   return initialization;
@@ -62,10 +100,14 @@ function getLiffRedirectUri(): string {
   return `${window.location.origin}${window.location.pathname}`;
 }
 
-export async function getLineIdToken(): Promise<string | null> {
-  const state = await initializeLiff();
+export async function getLineIdToken(
+  options: { allowExternalBrowser?: boolean } = {},
+): Promise<string | null> {
+  const state = await initializeLiff({
+    withLoginOnExternalBrowser: options.allowExternalBrowser,
+  });
 
-  if (!state.isInClient) {
+  if (!state.isInClient && !options.allowExternalBrowser) {
     return null;
   }
 

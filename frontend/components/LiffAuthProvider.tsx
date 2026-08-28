@@ -3,7 +3,13 @@
 import { useRouter } from "@/i18n/navigation";
 import { loginWithLineLiff } from "@/lib/api";
 import { getToken, setToken } from "@/lib/auth";
-import { getLineIdToken, initializeLiff, isLineInAppBrowser } from "@/lib/liff";
+import {
+  clearLineLiffLoginIntent,
+  getLineIdToken,
+  initializeLiff,
+  isLiffLoginIntent,
+  isLineInAppBrowser,
+} from "@/lib/liff";
 import { useTranslations } from "next-intl";
 import { type ReactNode, useEffect, useState } from "react";
 
@@ -21,24 +27,34 @@ export function LiffAuthProvider({ children }: Props) {
     let cancelled = false;
 
     async function authenticateWithLiff() {
-      if (getToken() || !isLineInAppBrowser()) {
+      if (getToken()) {
         return;
       }
 
+      const inLineApp = isLineInAppBrowser();
+      const desktopLogin = isLiffLoginIntent() && !inLineApp;
+
+      if (!inLineApp && !desktopLogin) {
+        return;
+      }
+
+      setChecking(true);
+      setError(null);
+
       try {
-        const state = await initializeLiff();
+        const state = await initializeLiff({
+          withLoginOnExternalBrowser: desktopLogin,
+        });
         if (cancelled) {
           return;
         }
 
-        if (!state.isInClient) {
+        if (!state.isInClient && !desktopLogin) {
+          setChecking(false);
           return;
         }
 
-        setChecking(true);
-        setError(null);
-
-        const idToken = await getLineIdToken();
+        const idToken = await getLineIdToken({ allowExternalBrowser: desktopLogin });
         if (cancelled) {
           return;
         }
@@ -53,10 +69,12 @@ export function LiffAuthProvider({ children }: Props) {
           return;
         }
 
+        clearLineLiffLoginIntent();
         setToken(response.token);
         router.replace("/student/dashboard");
       } catch {
         if (!cancelled) {
+          clearLineLiffLoginIntent();
           setError(t("liffLoginError"));
           setChecking(false);
         }
