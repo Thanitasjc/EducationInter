@@ -46,15 +46,28 @@
 | Render | `39479@sjc.ac.th` | https://dashboard.render.com/ |
 | Supabase | `thanitabackup01@gmail.com` | https://supabase.com/dashboard |
 
-### URL โปรดักชัน (ตั้งค่าแล้ว / ตั้งตามชื่อ)
+### Production links
 
-| บริการ | URL |
-|--------|-----|
-| API (Render) | https://education-inter-api.onrender.com |
+| ส่วน | URL |
+|------|-----|
+| **Frontend** (Vercel) | https://education-inter.vercel.app |
+| Frontend (TH) | https://education-inter.vercel.app/th |
+| Frontend (EN) | https://education-inter.vercel.app/en |
+| Student login | https://education-inter.vercel.app/th/login |
+| **Backend API** (Render) | https://education-inter-api.onrender.com |
 | API home | https://education-inter-api.onrender.com/api/home |
-| Admin Filament | https://education-inter-api.onrender.com/admin |
-| Frontend (Vercel) | https://education-inter.vercel.app *(หลัง deploy สำเร็จ)* |
+| **Admin** (Filament) | https://education-inter-api.onrender.com/admin |
 | Supabase dashboard | https://supabase.com/dashboard/project/velpsbmfvdydkhuitizo |
+
+### Production user / pass (demo seed)
+
+| บทบาท | Email | Password | ใช้ที่ |
+|--------|-------|----------|--------|
+| Admin | `admin@wineducation.local` | `password` | https://education-inter-api.onrender.com/admin |
+| Consultant | `consultant@wineducation.local` | `password` | Admin / CRM |
+| Student | `student@wineducation.local` | `password` | https://education-inter.vercel.app/th/login |
+
+> บัญชีเหล่านี้มาจาก seeder (`DemoContentSeeder` / Safe CRM seeder) — ใช้ทดสอบเท่านั้น
 
 ---
 
@@ -220,10 +233,7 @@ php artisan serve --port=8001
 
 - API: http://127.0.0.1:8001/api  
 - Admin: http://127.0.0.1:8001/admin  
-
-- https://education-inter-api.onrender.com/admin
-
-- ผู้ใช้ seed:  
+- ผู้ใช้ seed (เดียวกับ production demo — ดูตารางในหัวข้อ [2](#2-บัญชีและลิงก์ที่ใช้)):  
   - Admin: `admin@wineducation.local` / `password`  
   - Consultant: `consultant@wineducation.local` / `password`  
   - Student: `student@wineducation.local` / `password`

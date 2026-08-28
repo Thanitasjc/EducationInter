@@ -29,12 +29,6 @@ services:
         sync: false
       - key: FRONTEND_URL
         sync: false
-      - key: LINE_CLIENT_ID
-        sync: false
-      - key: LINE_CLIENT_SECRET
-        sync: false
-      - key: LINE_REDIRECT_URI
-        value: https://education-inter-api.onrender.com/api/auth/line/callback
       - key: DB_CONNECTION
         value: pgsql
       # Laravel 12 reads DB_URL (not DATABASE_URL)

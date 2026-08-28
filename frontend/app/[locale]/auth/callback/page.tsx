@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter } from "@/i18n/navigation";
-import { setToken } from "@/lib/auth";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect } from "react";
 
@@ -12,7 +11,7 @@ function CallbackInner() {
   useEffect(() => {
     const token = params.get("token");
     if (token) {
-      setToken(token);
+      localStorage.setItem("win_token", token);
       router.replace("/student/dashboard");
     } else {
       router.replace("/login");

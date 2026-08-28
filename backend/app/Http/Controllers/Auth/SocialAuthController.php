@@ -21,20 +21,14 @@ class SocialAuthController extends Controller
     {
         abort_unless(in_array($provider, $this->providers, true), 404);
 
-        return Socialite::driver($provider)->redirect();
+        return Socialite::driver($provider)->stateless()->redirect();
     }
 
     public function callback(Request $request, string $provider): RedirectResponse|JsonResponse
     {
         abort_unless(in_array($provider, $this->providers, true), 404);
 
-        if ($request->filled('error')) {
-            $frontend = rtrim(config('app.frontend_url', env('FRONTEND_URL', 'http://localhost:3000')), '/');
-
-            return redirect()->away("{$frontend}/en/login?error=line_login_failed");
-        }
-
-        $socialUser = Socialite::driver($provider)->user();
+        $socialUser = Socialite::driver($provider)->stateless()->user();
 
         $user = User::query()
             ->where('provider', $provider)
